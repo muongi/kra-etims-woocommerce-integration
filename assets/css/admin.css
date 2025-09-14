@@ -1,0 +1,140 @@
+/**
+ * KRA eTims WooCommerce Integration Admin CSS
+ */
+
+/* Customer TIN message styling */
+.kra-etims-customer-tin-message {
+    margin: 10px 0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border-left: 4px solid;
+}
+
+.kra-etims-customer-tin-message.notice-success {
+    background-color: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.kra-etims-customer-tin-message.notice-info {
+    background-color: #d1ecf1;
+    border-color: #17a2b8;
+    color: #0c5460;
+}
+
+.kra-etims-customer-tin-message.notice-error {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+/* Customer TIN field styling */
+#customer_tin {
+    font-family: monospace;
+    letter-spacing: 1px;
+}
+
+/* Order meta box styling */
+.kra-etims-wc-order-meta-box {
+    background: #f9f9f9;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.kra-etims-wc-order-meta-box p {
+    margin: 8px 0;
+}
+
+.kra-etims-wc-order-meta-box strong {
+    color: #333;
+}
+
+/* Receipt details styling */
+.receipt-details {
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    margin: 10px 0;
+}
+
+.receipt-details h4 {
+    margin: 0 0 10px 0;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.receipt-details .detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+    padding: 3px 0;
+}
+
+.receipt-details .detail-label {
+    font-weight: bold;
+    color: #666;
+}
+
+.receipt-details .detail-value {
+    font-family: monospace;
+    color: #333;
+}
+
+/* QR Code styling */
+.receipt-qr-code {
+    text-align: center;
+    margin: 15px 0;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.receipt-qr-code img {
+    border: 1px solid #eee;
+    border-radius: 4px;
+    padding: 5px;
+    background: #fff;
+}
+
+.receipt-qr-code .qr-code-text {
+    margin: 10px 0 0 0;
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+.receipt-qr-code .qr-code-download {
+    margin: 10px 0 0 0;
+}
+
+.receipt-qr-code .qr-code-download .button {
+    font-size: 11px;
+    padding: 4px 8px;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.receipt-qr-code .qr-code-download .button:hover {
+    background: #005a87;
+    color: #fff;
+}
+
+/* QR Code URL styling */
+.qr-code-url {
+    background: #f8f9fa;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+    font-family: monospace;
+    font-size: 11px;
+    word-break: break-all;
+    margin: 5px 0;
+} 

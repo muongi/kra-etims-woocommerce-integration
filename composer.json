@@ -1,0 +1,24 @@
+{
+    "name": "kra-etims/woocommerce-integration",
+    "description": "KRA eTims WooCommerce Integration Plugin",
+    "type": "wordpress-plugin",
+    "license": "ISC",
+    "authors": [
+        {
+            "name": "Shadrack Matata",
+            "email": "kisamba.debug@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "endroid/qr-code": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "KRA_eTims_WC\\": "includes/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+} 
