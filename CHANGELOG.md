@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Initial Release
 
+#### 🏪 **Injonge Etims POS Integration**
+- Designed specifically for **Injonge Etims POS** system
+- Complete KRA eTims compliance through proven POS solution
+- Production-ready API integration available through Rhenium Solutions
+
 #### ✨ Added
-- **Complete KRA eTims Integration**: Full integration with Kenya Revenue Authority eTims system
+- **Complete KRA eTims Integration**: Full integration with Kenya Revenue Authority eTims system through Injonge Etims POS
 - **Category Management**: 
   - 60+ predefined KRA eTims item codes across 10 categories
   - Dropdown selection for easy item code assignment

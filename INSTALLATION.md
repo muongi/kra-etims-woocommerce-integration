@@ -12,11 +12,22 @@ Before installing the plugin, ensure your system meets these requirements:
 - **PHP**: 7.4 or higher
 - **MySQL**: 5.6 or higher
 - **SSL Certificate**: Recommended for production use
+- **Injonge Etims POS system**: Required for complete integration
 
 ### Required Extensions
 - **cURL**: For API communication
 - **JSON**: For data processing
 - **OpenSSL**: For SSL/TLS connections
+
+### 🏪 **Injonge Etims POS Integration**
+This plugin is specifically designed to work with **Injonge Etims POS** system for complete KRA eTims compliance and seamless integration.
+
+**For Production Setup:**
+- Contact **Rhenium Solutions** for complete Injonge Etims POS setup
+- Phone: +254721638836
+- Email: info@rheniumgroup.co.ke
+- Get production-ready API endpoints and configuration
+- Professional installation and configuration support
 
 ## 🚀 Installation Methods
 
