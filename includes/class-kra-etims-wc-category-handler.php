@@ -104,6 +104,46 @@ class KRA_eTims_WC_Category_Handler {
             '4111530900' => 'Fast Foods - Beverages & Drinks',
             '4111531000' => 'Fast Foods - Sides & Appetizers'
         ),
+        'beer' => array(
+            '4111540100' => 'Beer - Lager',
+            '4111540200' => 'Beer - Ale',
+            '4111540300' => 'Beer - Stout & Porter',
+            '4111540400' => 'Beer - Wheat Beer',
+            '4111540500' => 'Beer - Craft Beer',
+            '4111540600' => 'Beer - Premium Beer',
+            '4111540700' => 'Beer - Light Beer',
+            '4111540800' => 'Beer - Non-Alcoholic Beer',
+            '4111540900' => 'Beer - Imported Beer',
+            '4111541000' => 'Beer - Local Brands'
+        ),
+        'alcoholic_beverages' => array(
+            '4111550100' => 'Alcoholic Beverages - Spirits & Liquor',
+            '4111550200' => 'Alcoholic Beverages - Wine',
+            '4111550300' => 'Alcoholic Beverages - Whiskey',
+            '4111550400' => 'Alcoholic Beverages - Vodka',
+            '4111550500' => 'Alcoholic Beverages - Rum',
+            '4111550600' => 'Alcoholic Beverages - Gin',
+            '4111550700' => 'Alcoholic Beverages - Brandy & Cognac',
+            '4111550800' => 'Alcoholic Beverages - Tequila',
+            '4111550900' => 'Alcoholic Beverages - Liqueurs',
+            '4111551000' => 'Alcoholic Beverages - Cocktail Mixes',
+            '4111551100' => 'Alcoholic Beverages - Traditional Brews',
+            '4111551200' => 'Alcoholic Beverages - Ciders'
+        ),
+        'beverages' => array(
+            '4111560100' => 'Beverages - Soft Drinks',
+            '4111560200' => 'Beverages - Juices',
+            '4111560300' => 'Beverages - Water (Bottled & Mineral)',
+            '4111560400' => 'Beverages - Energy Drinks',
+            '4111560500' => 'Beverages - Sports Drinks',
+            '4111560600' => 'Beverages - Tea & Coffee',
+            '4111560700' => 'Beverages - Milk & Dairy Drinks',
+            '4111560800' => 'Beverages - Smoothies & Shakes',
+            '4111560900' => 'Beverages - Health & Wellness Drinks',
+            '4111561000' => 'Beverages - Carbonated Drinks',
+            '4111561100' => 'Beverages - Flavored Water',
+            '4111561200' => 'Beverages - Traditional Drinks'
+        ),
         'special' => array(
             '990500XX' => 'Special Category',
             '9900000005' => 'Special Category'
