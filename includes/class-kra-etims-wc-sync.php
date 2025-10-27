@@ -744,15 +744,46 @@ class KRA_eTims_WC_Sync {
         
         global $wpdb;
         
-        // Delete all category SIDs
+        // Log the table name being used for debugging
+        $table_name = $wpdb->termmeta;
+        error_log("KRA eTims: Clearing category SIDs from table: {$table_name}");
+        
+        // First check if there are any records to delete
+        $count_query = $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->termmeta} WHERE meta_key = %s",
+            '_kra_etims_server_id'
+        );
+        $count_before = $wpdb->get_var($count_query);
+        
+        error_log("KRA eTims: Found {$count_before} category SID records before deletion");
+        
+        // Delete all category SIDs using prepared statement for security
         $deleted = $wpdb->query(
-            "DELETE FROM {$wpdb->termmeta} WHERE meta_key = '_kra_etims_server_id'"
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->termmeta} WHERE meta_key = %s",
+                '_kra_etims_server_id'
+            )
         );
         
+        // Check for database errors
+        if ($wpdb->last_error) {
+            error_log("KRA eTims: Database error during category clear: " . $wpdb->last_error);
+            wp_send_json_error("Database error: " . $wpdb->last_error);
+            return;
+        }
+        
+        // Verify the deletion
+        $count_after = $wpdb->get_var($count_query);
+        error_log("KRA eTims: Found {$count_after} category SID records after deletion");
+        
         if ($deleted !== false) {
-            wp_send_json_success("Successfully cleared {$deleted} category SID record(s)");
+            $message = "Successfully cleared {$deleted} category SID record(s)";
+            if ($count_before > 0 && $deleted === 0) {
+                $message .= " (Note: Records found but none deleted - check permissions)";
+            }
+            wp_send_json_success($message);
         } else {
-            wp_send_json_error('Failed to clear category data');
+            wp_send_json_error('Failed to clear category data - database query returned false');
         }
     }
     
@@ -768,42 +799,88 @@ class KRA_eTims_WC_Sync {
         
         global $wpdb;
         
+        // Log the table name being used for debugging
+        $table_name = $wpdb->postmeta;
+        error_log("KRA eTims: Clearing product KRA data from table: {$table_name}");
+        
         $total_deleted = 0;
+        $details = array();
         
         // Clear Product Injonge Codes
         $deleted = $wpdb->query(
-            "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_injonge_code'"
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
+                '_injonge_code'
+            )
         );
-        $total_deleted += $deleted;
+        if ($deleted !== false) {
+            $total_deleted += $deleted;
+            $details[] = "injonge_codes: {$deleted}";
+            error_log("KRA eTims: Cleared {$deleted} injonge codes");
+        }
         
         // Clear Product SIDs
         $deleted = $wpdb->query(
-            "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_injonge_sid'"
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
+                '_injonge_sid'
+            )
         );
-        $total_deleted += $deleted;
+        if ($deleted !== false) {
+            $total_deleted += $deleted;
+            $details[] = "product_sids: {$deleted}";
+            error_log("KRA eTims: Cleared {$deleted} product SIDs");
+        }
         
         // Clear Product Category SIDs
         $deleted = $wpdb->query(
-            "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_injonge_category_sid'"
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
+                '_injonge_category_sid'
+            )
         );
-        $total_deleted += $deleted;
+        if ($deleted !== false) {
+            $total_deleted += $deleted;
+            $details[] = "category_sids: {$deleted}";
+            error_log("KRA eTims: Cleared {$deleted} product category SIDs");
+        }
         
         // Clear Product Sync Status
         $deleted = $wpdb->query(
             "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_injonge_status', '_injonge_last_sync', '_injonge_response', '_injonge_error')"
         );
-        $total_deleted += $deleted;
+        if ($deleted !== false) {
+            $total_deleted += $deleted;
+            $details[] = "sync_status: {$deleted}";
+            error_log("KRA eTims: Cleared {$deleted} sync status records");
+        }
         
         // Clear API Notes
         $deleted = $wpdb->query(
             "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_api_note', '_api_error_note')"
         );
-        $total_deleted += $deleted;
+        if ($deleted !== false) {
+            $total_deleted += $deleted;
+            $details[] = "api_notes: {$deleted}";
+            error_log("KRA eTims: Cleared {$deleted} API note records");
+        }
         
-        if ($total_deleted !== false) {
-            wp_send_json_success("Successfully cleared {$total_deleted} product KRA data record(s)");
+        // Check for database errors
+        if ($wpdb->last_error) {
+            error_log("KRA eTims: Database error during product clear: " . $wpdb->last_error);
+            wp_send_json_error("Database error: " . $wpdb->last_error);
+            return;
+        }
+        
+        if ($total_deleted !== false && $total_deleted >= 0) {
+            $message = "Successfully cleared {$total_deleted} product KRA data record(s)";
+            if (!empty($details)) {
+                $message .= " (" . implode(', ', $details) . ")";
+            }
+            error_log("KRA eTims: Product clear completed - Total deleted: {$total_deleted}");
+            wp_send_json_success($message);
         } else {
-            wp_send_json_error('Failed to clear product data');
+            wp_send_json_error('Failed to clear product data - database query returned false');
         }
     }
 } 
