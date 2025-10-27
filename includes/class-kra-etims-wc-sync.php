@@ -646,42 +646,100 @@ class KRA_eTims_WC_Sync {
      */
     private function send_category_to_api($category, $unspec_code) {
         $settings = get_option('kra_etims_wc_settings');
-        $api_url = isset($settings['custom_api_live_url']) ? $settings['custom_api_live_url'] : '';
         
-        if (empty($api_url)) {
-            return array('success' => false, 'message' => 'API URL not configured');
+        // Get API base URL from settings (same as category handler)
+        $api_base_url = isset($settings['api_base_url']) ? $settings['api_base_url'] : '';
+        
+        if (empty($api_base_url)) {
+            return array('success' => false, 'message' => 'API Base URL not configured in settings');
         }
         
+        // Get tin and bhfId from settings
+        $tin = isset($settings['tin']) ? $settings['tin'] : '990888000';
+        $bhfId = isset($settings['bhfId']) ? $settings['bhfId'] : '00';
+        
+        // Build API URL
+        $api_url = rtrim($api_base_url, '/') . '/add_categories';
+        
+        // Prepare category data in the EXACT format as category handler (which works)
         $category_data = array(
-            'name' => $category->name,
-            'unspec_code' => $unspec_code,
-            'description' => $category->description,
-            'slug' => $category->slug
+            'catergory_name' => $category->name,  // Note: matches API spelling
+            'description' => !empty($category->description) ? $category->description : '000',
+            'price' => '0',  // Default price for categories
+            'tin' => $tin,
+            'bhfId' => $bhfId,
+            'itemcode' => $unspec_code
         );
         
-        $response = wp_remote_post($api_url . '/add_categories', array(
+        // Log the request for debugging
+        error_log('KRA eTims Sync: Sending category to API - ' . $category->name);
+        error_log('KRA eTims Sync: API URL - ' . $api_url);
+        error_log('KRA eTims Sync: Category data - ' . json_encode($category_data));
+        
+        // Make the API request
+        $response = wp_remote_post($api_url, array(
+            'method' => 'POST',
+            'timeout' => 30,
+            'redirection' => 5,
+            'httpversion' => '1.1',
+            'blocking' => true,
             'headers' => array(
                 'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
             ),
             'body' => json_encode($category_data),
-            'timeout' => 30,
         ));
         
+        // Check for request errors
         if (is_wp_error($response)) {
-            return array('success' => false, 'message' => $response->get_error_message());
+            $error_msg = $response->get_error_message();
+            error_log('KRA eTims Sync: API request failed - ' . $error_msg);
+            return array('success' => false, 'message' => 'API request failed: ' . $error_msg);
         }
         
+        // Get response code and body
+        $response_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
         
+        // Log the response for debugging
+        error_log('KRA eTims Sync: API Response Code - ' . $response_code);
+        error_log('KRA eTims Sync: API Response Body - ' . $body);
+        
+        // Check response code
+        if ($response_code < 200 || $response_code >= 300) {
+            $error_message = isset($data['message']) ? $data['message'] : 'HTTP ' . $response_code;
+            error_log('KRA eTims Sync: API error - ' . $error_message);
+            return array('success' => false, 'message' => $error_message);
+        }
+        
+        // Check for success in response data
         if (isset($data['success']) && $data['success']) {
             // Save SID if provided
             if (isset($data['sid'])) {
                 update_term_meta($category->term_id, '_kra_etims_server_id', $data['sid']);
+                error_log('KRA eTims Sync: Category synced successfully with SID - ' . $data['sid']);
+            } elseif (isset($data['id'])) {
+                // Alternative field name
+                update_term_meta($category->term_id, '_kra_etims_server_id', $data['id']);
+                error_log('KRA eTims Sync: Category synced successfully with ID - ' . $data['id']);
+            } else {
+                error_log('KRA eTims Sync: Category synced successfully (no SID returned)');
             }
             return array('success' => true, 'message' => 'Category synced successfully');
         } else {
-            return array('success' => false, 'message' => isset($data['message']) ? $data['message'] : 'Unknown error');
+            // Extract error message from response
+            $error_message = 'Unknown API error';
+            if (isset($data['message'])) {
+                $error_message = $data['message'];
+            } elseif (isset($data['error'])) {
+                $error_message = $data['error'];
+            } elseif (!empty($body)) {
+                $error_message = substr($body, 0, 200); // First 200 chars of response
+            }
+            
+            error_log('KRA eTims Sync: API returned error - ' . $error_message);
+            return array('success' => false, 'message' => $error_message);
         }
     }
     
