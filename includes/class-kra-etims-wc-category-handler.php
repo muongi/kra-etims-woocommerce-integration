@@ -104,6 +104,33 @@ class KRA_eTims_WC_Category_Handler {
             '4111530900' => 'Fast Foods - Beverages & Drinks',
             '4111531000' => 'Fast Foods - Sides & Appetizers'
         ),
+        'alcoholic_drinks' => array(
+            '4111540100' => 'Alcoholic Drinks - Beer',
+            '4111540200' => 'Alcoholic Drinks - Wine',
+            '4111540300' => 'Alcoholic Drinks - Spirits',
+            '4111540400' => 'Alcoholic Drinks - Liqueurs',
+            '4111540500' => 'Alcoholic Drinks - Cocktails & Mixed Drinks',
+            '4111540600' => 'Alcoholic Drinks - Cider',
+            '4111540700' => 'Alcoholic Drinks - Champagne & Sparkling Wine',
+            '4111540800' => 'Alcoholic Drinks - Whiskey',
+            '4111540900' => 'Alcoholic Drinks - Vodka',
+            '4111541000' => 'Alcoholic Drinks - Rum',
+            '4111541100' => 'Alcoholic Drinks - Gin',
+            '4111541200' => 'Alcoholic Drinks - Tequila'
+        ),
+        'beers' => array(
+            '4111550100' => 'Beers - Lager',
+            '4111550200' => 'Beers - Ale',
+            '4111550300' => 'Beers - Stout',
+            '4111550400' => 'Beers - Pilsner',
+            '4111550500' => 'Beers - IPA (India Pale Ale)',
+            '4111550600' => 'Beers - Wheat Beer',
+            '4111550700' => 'Beers - Porter',
+            '4111550800' => 'Beers - Dark Beer',
+            '4111550900' => 'Beers - Light Beer',
+            '4111551000' => 'Beers - Craft Beer',
+            '4111551100' => 'Beers - Non-Alcoholic Beer'
+        ),
         'special' => array(
             '990500XX' => 'Special Category',
             '9900000005' => 'Special Category'
