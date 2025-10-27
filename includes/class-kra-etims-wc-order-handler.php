@@ -29,11 +29,19 @@ class KRA_eTims_WC_Order_Handler {
     private $settings;
 
     /**
+     * Tax Handler instance
+     *
+     * @var KRA_eTims_WC_Tax_Handler
+     */
+    private $tax_handler;
+
+    /**
      * Constructor
      */
     public function __construct() {
         $this->api = new KRA_eTims_WC_API();
         $this->settings = get_option('kra_etims_wc_settings', array());
+        $this->tax_handler = KRA_eTims_WC_Tax_Handler::get_instance();
     }
 
     /**
@@ -362,19 +370,27 @@ class KRA_eTims_WC_Order_Handler {
             // Get item data using safe methods
             $item_name = $item->get_name();
             $quantity = $item->get_quantity();
-            $unit_price = $order->get_item_total($item, false, false); // Price without tax
+            
+            // Get tax information from WooCommerce (using our tax handler)
+            $tax_info = $this->tax_handler->get_item_tax_info($item, $order);
+            
+            $unit_price = $tax_info['unit_price_with_tax']; // Price including tax (tax-inclusive)
+            $total_price = $tax_info['total_with_tax']; // Total including tax
+            $taxable_amount = $tax_info['taxable_amount']; // Amount without tax
+            $tax_amount = $tax_info['tax_amount']; // Tax amount
+            $tax_type = $tax_info['kra_tax_type']; // KRA tax type (A, B, C, D)
             
             // Set price to 0 if not available
             if (empty($unit_price) || $unit_price <= 0) {
                 $unit_price = 0;
             }
-            
-            $total_price = $unit_price * $quantity;
+            if (empty($total_price) || $total_price <= 0) {
+                $total_price = 0;
+            }
             
             // Get product meta for KRA eTims data
             $injonge_code = get_post_meta($product_id, '_injonge_code', true);
             $unspec_code = get_post_meta($product_id, '_injonge_unspec', true);
-            $tax_type = get_post_meta($product_id, '_injonge_taxid', true);
             
             // Default values if not set
             if (empty($injonge_code)) {
@@ -383,46 +399,30 @@ class KRA_eTims_WC_Order_Handler {
             if (empty($unspec_code)) {
                 $unspec_code = '2711290500'; // Default classification code
             }
-            if (empty($tax_type)) {
-                $tax_type = 'B'; // Default to VAT (16%)
-            }
             
-            // Calculate tax based on tax type
-            $taxable_amount = 0;
-            $tax_amount = 0;
-            
+            // Add to totals based on tax type
             switch ($tax_type) {
                 case 'A': // Exempt (0%)
-                    $taxable_amount = $total_price;
-                    $tax_amount = 0;
                     $total_taxable_amount_a += $taxable_amount;
                     $total_tax_amount_a += $tax_amount;
                     break;
                     
                 case 'B': // VAT (16%)
-                    $taxable_amount = round($total_price / 1.16, 2);
-                    $tax_amount = round($total_price - $taxable_amount, 2);
                     $total_taxable_amount_b += $taxable_amount;
                     $total_tax_amount_b += $tax_amount;
                     break;
                     
                 case 'C': // Export (0%)
-                    $taxable_amount = $total_price;
-                    $tax_amount = 0;
                     $total_taxable_amount_c += $taxable_amount;
                     $total_tax_amount_c += $tax_amount;
                     break;
                     
                 case 'D': // Non VAT (0%)
-                    $taxable_amount = $total_price;
-                    $tax_amount = 0;
                     $total_taxable_amount_d += $taxable_amount;
                     $total_tax_amount_d += $tax_amount;
                     break;
                     
                 default: // Default to VAT (16%)
-                    $taxable_amount = round($total_price / 1.16, 2);
-                    $tax_amount = round($total_price - $taxable_amount, 2);
                     $total_taxable_amount_b += $taxable_amount;
                     $total_tax_amount_b += $tax_amount;
                     break;
@@ -460,19 +460,22 @@ class KRA_eTims_WC_Order_Handler {
         
         // Add shipping as an item if applicable
         $shipping_total = $order->get_shipping_total();
-        if ($shipping_total > 0) {
+        $shipping_tax = $order->get_shipping_tax();
+        
+        if ($shipping_total > 0 || $shipping_tax > 0) {
             // Set shipping price to 0 if not available
             if (empty($shipping_total) || $shipping_total <= 0) {
                 $shipping_total = 0;
             }
             
-            // Shipping is typically Tax B (16% VAT)
-            $shipping_taxable = round($shipping_total / 1.16, 2);
-            $shipping_tax = round($shipping_total - $shipping_taxable, 2);
+            // Calculate shipping amounts (tax-inclusive)
+            $shipping_with_tax = $shipping_total + $shipping_tax;
+            $shipping_taxable = $shipping_total; // Amount without tax
             
+            // Shipping is typically Tax B (16% VAT)
             $total_taxable_amount_b += $shipping_taxable;
             $total_tax_amount_b += $shipping_tax;
-            $total_amount += $shipping_total;
+            $total_amount += $shipping_with_tax;
             
             $item_list[] = array(
                 'itemSeq' => $item_seq,
@@ -482,9 +485,9 @@ class KRA_eTims_WC_Order_Handler {
                 'bcd' => 'null',
                 'pkgUnitCd' => 'NT',
                 'pkg' => 1,
-                'prc' => round($shipping_total, 0),
+                'prc' => round($shipping_with_tax, 0),
                 'qty' => 1,
-                'splyAmt' => round($shipping_total, 0),
+                'splyAmt' => round($shipping_with_tax, 0),
                 'dcRt' => '0.00',
                 'dcAmt' => '0.00',
                 'isrccCd' => null,
@@ -494,7 +497,7 @@ class KRA_eTims_WC_Order_Handler {
                 'taxTyCd' => 'B', // Shipping is always Tax B
                 'taxAmt' => round($shipping_tax, 2),
                 'taxblAmt' => round($shipping_taxable, 2),
-                'totAmt' => round($shipping_total, 0),
+                'totAmt' => round($shipping_with_tax, 0),
                 'qtyUnitCd' => 'U'
             );
         }
