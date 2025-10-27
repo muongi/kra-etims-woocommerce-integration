@@ -506,9 +506,20 @@ class KRA_eTims_WC_Sync {
         foreach ($categories as $category) {
             $unspec_code = get_term_meta($category->term_id, '_kra_etims_unspec_code', true);
             
+            // Skip categories without unspec code
             if (empty($unspec_code)) {
                 $skipped_count++;
-                continue; // Skip and continue to next category
+                continue;
+            }
+            
+            // Check if category already has a Server ID (SID)
+            $existing_sid = get_term_meta($category->term_id, '_kra_etims_server_id', true);
+            
+            if (!empty($existing_sid)) {
+                // Category already synced, skip it
+                $skipped_count++;
+                error_log("KRA eTims Sync: Skipping category '{$category->name}' - already has SID: {$existing_sid}");
+                continue;
             }
             
             // Send category to API
@@ -536,7 +547,7 @@ class KRA_eTims_WC_Sync {
         $message = "Sync completed: {$synced_count} successful";
         
         if ($skipped_count > 0) {
-            $message .= ", {$skipped_count} skipped (no unspec code)";
+            $message .= ", {$skipped_count} skipped (no unspec code or already synced)";
         }
         
         if ($failed_count > 0) {
