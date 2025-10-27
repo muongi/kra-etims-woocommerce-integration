@@ -1171,11 +1171,40 @@ class KRA_eTims_WC_Sync {
         
         global $wpdb;
         
+        // Log database prefix information for verification
+        $prefix = $wpdb->prefix;
+        $termmeta_table = $wpdb->termmeta;
+        $postmeta_table = $wpdb->postmeta;
+        
         error_log("KRA eTims: Force Clear All - Starting aggressive data clearing");
+        error_log("KRA eTims: Database prefix: {$prefix}");
+        error_log("KRA eTims: Using termmeta table: {$termmeta_table}");
+        error_log("KRA eTims: Using postmeta table: {$postmeta_table}");
         
         $total_deleted = 0;
         $operations = array();
         $errors = array();
+        
+        // Add database prefix to response for user verification
+        $operations[] = "Database prefix: {$prefix}";
+        
+        // Verify tables exist before proceeding
+        $termmeta_exists = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->termmeta}'");
+        $postmeta_exists = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->postmeta}'");
+        
+        if (!$termmeta_exists) {
+            error_log("KRA eTims: ERROR - Table {$wpdb->termmeta} does not exist!");
+            wp_send_json_error("Database error: Table {$wpdb->termmeta} not found. Check database prefix.");
+            return;
+        }
+        
+        if (!$postmeta_exists) {
+            error_log("KRA eTims: ERROR - Table {$wpdb->postmeta} does not exist!");
+            wp_send_json_error("Database error: Table {$wpdb->postmeta} not found. Check database prefix.");
+            return;
+        }
+        
+        error_log("KRA eTims: Table verification passed - both tables exist");
         
         // Disable foreign key checks temporarily (if supported)
         $wpdb->query("SET FOREIGN_KEY_CHECKS = 0");
@@ -1287,7 +1316,8 @@ class KRA_eTims_WC_Sync {
         
         // Build response message
         if ($total_deleted > 0) {
-            $message = "Force clear completed! Deleted {$total_deleted} total records";
+            $message = "Force clear completed! Deleted {$total_deleted} total records<br>";
+            $message .= "<small>Tables used: {$termmeta_table}, {$postmeta_table}</small>";
             
             if (!empty($operations)) {
                 $message .= "<br><br><strong>Details:</strong><br>" . implode('<br>', $operations);
