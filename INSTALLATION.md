@@ -23,7 +23,7 @@ Before installing the plugin, ensure your system meets these requirements:
 This plugin is specifically designed to work with **Injonge Etims POS** system for complete KRA eTims compliance and seamless integration.
 
 **For Production Setup:**
-- Contact **Rhenium Solutions** for complete Injonge Etims POS setup
+- Contact **Rhenium Group** for complete Injonge Etims POS setup
 - Phone: +254721638836
 - Email: info@rheniumgroup.co.ke
 - Get production-ready API endpoints and configuration

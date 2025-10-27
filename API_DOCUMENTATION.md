@@ -7,7 +7,7 @@ This document provides comprehensive information about the API integration betwe
 This plugin is specifically designed to work with **Injonge Etims POS** system for complete KRA eTims compliance.
 
 **For Production API Details:**
-- Contact **Rhenium Solutions** for Injonge Etims POS API endpoints
+- Contact **Rhenium Group** for Injonge Etims POS API endpoints
 - Phone: +254721638836
 - Email: info@rheniumgroup.co.ke
 - Get production-ready API configuration and credentials

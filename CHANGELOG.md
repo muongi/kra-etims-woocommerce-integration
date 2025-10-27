@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### 🏪 **Injonge Etims POS Integration**
 - Designed specifically for **Injonge Etims POS** system
 - Complete KRA eTims compliance through proven POS solution
-- Production-ready API integration available through Rhenium Solutions
+- Production-ready API integration available through Rhenium Group
 
 #### ✨ Added
 - **Complete KRA eTims Integration**: Full integration with Kenya Revenue Authority eTims system through Injonge Etims POS

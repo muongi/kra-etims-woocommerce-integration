@@ -56,7 +56,7 @@ This plugin provides seamless integration between WooCommerce and KRA eTims, ena
 This plugin is specifically designed to work with **Injonge Etims POS** system for complete KRA eTims compliance. 
 
 **For Production Setup:**
-- Contact **Rhenium Solutions** for complete Injonge Etims POS setup
+- Contact **Rhenium Group** for complete Injonge Etims POS setup
 - Phone: +254721638836
 - Email: info@rheniumgroup.co.ke
 - Get production-ready API endpoints and configuration
@@ -78,7 +78,7 @@ This plugin is specifically designed to work with **Injonge Etims POS** system f
 
 3. **Configure Settings**
    - Go to WooCommerce → KRA eTims
-   - Enter your API credentials and settings (contact Rhenium Solutions for production details)
+   - Enter your API credentials and settings (contact Rhenium Group for production details)
    - Configure company information
 
 ## ⚙️ Configuration
