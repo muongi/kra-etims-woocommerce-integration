@@ -1008,6 +1008,7 @@ class KRA_eTims_WC_Sync {
     
     /**
      * AJAX clear category data
+     * Now properly handles custom database prefixes (e.g., wptl_, wplt_)
      */
     public function ajax_clear_category_data() {
         check_ajax_referer('kra_etims_sync', 'nonce');
@@ -1018,43 +1019,47 @@ class KRA_eTims_WC_Sync {
         
         global $wpdb;
         
-        // Log the table name being used for debugging
-        $table_name = $wpdb->termmeta;
+        // Get the actual table name with proper prefix
+        $table_name = $wpdb->prefix . 'termmeta';
         error_log("KRA eTims: Clearing category SIDs from table: {$table_name}");
         
         // First check if there are any records to delete
-        $count_query = $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->termmeta} WHERE meta_key = %s",
+        $count_before = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM `{$table_name}` WHERE meta_key = %s",
             '_kra_etims_server_id'
-        );
-        $count_before = $wpdb->get_var($count_query);
+        ));
         
         error_log("KRA eTims: Found {$count_before} category SID records before deletion");
         
-        // Delete all category SIDs using prepared statement for security
-        $deleted = $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->termmeta} WHERE meta_key = %s",
-                '_kra_etims_server_id'
-            )
-        );
+        // Delete all category SIDs using prepared statement for security with backticks for table name
+        $deleted = $wpdb->query($wpdb->prepare(
+            "DELETE FROM `{$table_name}` WHERE meta_key = %s",
+            '_kra_etims_server_id'
+        ));
         
         // Check for database errors
         if ($wpdb->last_error) {
             error_log("KRA eTims: Database error during category clear: " . $wpdb->last_error);
-            wp_send_json_error("Database error: " . $wpdb->last_error);
+            wp_send_json_error("Database error: " . $wpdb->last_error . " (Prefix: {$wpdb->prefix})");
             return;
         }
         
         // Verify the deletion
-        $count_after = $wpdb->get_var($count_query);
+        $count_after = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM `{$table_name}` WHERE meta_key = %s",
+            '_kra_etims_server_id'
+        ));
         error_log("KRA eTims: Found {$count_after} category SID records after deletion");
+        
+        // Clear WordPress object cache
+        wp_cache_flush();
         
         if ($deleted !== false) {
             $message = "Successfully cleared {$deleted} category SID record(s)";
             if ($count_before > 0 && $deleted === 0) {
-                $message .= " (Note: Records found but none deleted - check permissions)";
+                $message .= " (Note: Records found but none deleted - check database permissions)";
             }
+            $message .= " [Prefix: {$wpdb->prefix}]";
             wp_send_json_success($message);
         } else {
             wp_send_json_error('Failed to clear category data - database query returned false');
@@ -1063,6 +1068,7 @@ class KRA_eTims_WC_Sync {
     
     /**
      * AJAX clear product data
+     * Now properly handles custom database prefixes (e.g., wptl_, wplt_)
      */
     public function ajax_clear_product_data() {
         check_ajax_referer('kra_etims_sync', 'nonce');
@@ -1073,20 +1079,18 @@ class KRA_eTims_WC_Sync {
         
         global $wpdb;
         
-        // Log the table name being used for debugging
-        $table_name = $wpdb->postmeta;
+        // Get the actual table name with proper prefix
+        $table_name = $wpdb->prefix . 'postmeta';
         error_log("KRA eTims: Clearing product KRA data from table: {$table_name}");
         
         $total_deleted = 0;
         $details = array();
         
         // Clear Product Injonge Codes
-        $deleted = $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
-                '_injonge_code'
-            )
-        );
+        $deleted = $wpdb->query($wpdb->prepare(
+            "DELETE FROM `{$table_name}` WHERE meta_key = %s",
+            '_injonge_code'
+        ));
         if ($deleted !== false) {
             $total_deleted += $deleted;
             $details[] = "injonge_codes: {$deleted}";
@@ -1094,12 +1098,10 @@ class KRA_eTims_WC_Sync {
         }
         
         // Clear Product SIDs
-        $deleted = $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
-                '_injonge_sid'
-            )
-        );
+        $deleted = $wpdb->query($wpdb->prepare(
+            "DELETE FROM `{$table_name}` WHERE meta_key = %s",
+            '_injonge_sid'
+        ));
         if ($deleted !== false) {
             $total_deleted += $deleted;
             $details[] = "product_sids: {$deleted}";
@@ -1107,21 +1109,19 @@ class KRA_eTims_WC_Sync {
         }
         
         // Clear Product Category SIDs
-        $deleted = $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
-                '_injonge_category_sid'
-            )
-        );
+        $deleted = $wpdb->query($wpdb->prepare(
+            "DELETE FROM `{$table_name}` WHERE meta_key = %s",
+            '_injonge_category_sid'
+        ));
         if ($deleted !== false) {
             $total_deleted += $deleted;
             $details[] = "category_sids: {$deleted}";
             error_log("KRA eTims: Cleared {$deleted} product category SIDs");
         }
         
-        // Clear Product Sync Status
+        // Clear Product Sync Status - using backticks for table name
         $deleted = $wpdb->query(
-            "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_injonge_status', '_injonge_last_sync', '_injonge_response', '_injonge_error')"
+            "DELETE FROM `{$table_name}` WHERE meta_key IN ('_injonge_status', '_injonge_last_sync', '_injonge_response', '_injonge_error')"
         );
         if ($deleted !== false) {
             $total_deleted += $deleted;
@@ -1129,9 +1129,9 @@ class KRA_eTims_WC_Sync {
             error_log("KRA eTims: Cleared {$deleted} sync status records");
         }
         
-        // Clear API Notes
+        // Clear API Notes - using backticks for table name
         $deleted = $wpdb->query(
-            "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_api_note', '_api_error_note')"
+            "DELETE FROM `{$table_name}` WHERE meta_key IN ('_api_note', '_api_error_note')"
         );
         if ($deleted !== false) {
             $total_deleted += $deleted;
@@ -1142,15 +1142,19 @@ class KRA_eTims_WC_Sync {
         // Check for database errors
         if ($wpdb->last_error) {
             error_log("KRA eTims: Database error during product clear: " . $wpdb->last_error);
-            wp_send_json_error("Database error: " . $wpdb->last_error);
+            wp_send_json_error("Database error: " . $wpdb->last_error . " (Prefix: {$wpdb->prefix})");
             return;
         }
+        
+        // Clear WordPress object cache
+        wp_cache_flush();
         
         if ($total_deleted !== false && $total_deleted >= 0) {
             $message = "Successfully cleared {$total_deleted} product KRA data record(s)";
             if (!empty($details)) {
                 $message .= " (" . implode(', ', $details) . ")";
             }
+            $message .= " [Prefix: {$wpdb->prefix}]";
             error_log("KRA eTims: Product clear completed - Total deleted: {$total_deleted}");
             wp_send_json_success($message);
         } else {
@@ -1161,6 +1165,7 @@ class KRA_eTims_WC_Sync {
     /**
      * AJAX force clear all KRA data (both categories and products)
      * Uses aggressive clearing methods when regular clear fails
+     * Now properly handles custom database prefixes (e.g., wptl_, wplt_)
      */
     public function ajax_force_clear_all() {
         check_ajax_referer('kra_etims_sync', 'nonce');
@@ -1171,15 +1176,15 @@ class KRA_eTims_WC_Sync {
         
         global $wpdb;
         
-        // Log database prefix information for verification
+        // Get the actual table names with proper prefix
         $prefix = $wpdb->prefix;
-        $termmeta_table = $wpdb->termmeta;
-        $postmeta_table = $wpdb->postmeta;
+        $termmeta_table = $wpdb->prefix . 'termmeta';
+        $postmeta_table = $wpdb->prefix . 'postmeta';
         
-        error_log("KRA eTims: Force Clear All - Starting aggressive data clearing");
+        error_log("KRA eTims: Force Clear All - Starting with custom prefix support");
         error_log("KRA eTims: Database prefix: {$prefix}");
-        error_log("KRA eTims: Using termmeta table: {$termmeta_table}");
-        error_log("KRA eTims: Using postmeta table: {$postmeta_table}");
+        error_log("KRA eTims: Termmeta table: {$termmeta_table}");
+        error_log("KRA eTims: Postmeta table: {$postmeta_table}");
         
         $total_deleted = 0;
         $operations = array();
@@ -1188,19 +1193,19 @@ class KRA_eTims_WC_Sync {
         // Add database prefix to response for user verification
         $operations[] = "Database prefix: {$prefix}";
         
-        // Verify tables exist before proceeding
-        $termmeta_exists = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->termmeta}'");
-        $postmeta_exists = $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->postmeta}'");
+        // Verify tables exist before proceeding - use prepared statement for safety
+        $termmeta_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $termmeta_table));
+        $postmeta_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $postmeta_table));
         
         if (!$termmeta_exists) {
-            error_log("KRA eTims: ERROR - Table {$wpdb->termmeta} does not exist!");
-            wp_send_json_error("Database error: Table {$wpdb->termmeta} not found. Check database prefix.");
+            error_log("KRA eTims: ERROR - Table {$termmeta_table} does not exist!");
+            wp_send_json_error("Database error: Table {$termmeta_table} not found. Prefix: {$prefix}");
             return;
         }
         
         if (!$postmeta_exists) {
-            error_log("KRA eTims: ERROR - Table {$wpdb->postmeta} does not exist!");
-            wp_send_json_error("Database error: Table {$wpdb->postmeta} not found. Check database prefix.");
+            error_log("KRA eTims: ERROR - Table {$postmeta_table} does not exist!");
+            wp_send_json_error("Database error: Table {$postmeta_table} not found. Prefix: {$prefix}");
             return;
         }
         
@@ -1211,37 +1216,63 @@ class KRA_eTims_WC_Sync {
         
         try {
             // === CATEGORY DATA CLEARING ===
-            error_log("KRA eTims: Force clearing category SIDs from {$wpdb->termmeta}");
+            error_log("KRA eTims: Force clearing category SIDs from {$termmeta_table}");
             
-            // Method 1: Prepared statement DELETE
-            $deleted = $wpdb->query(
-                $wpdb->prepare(
-                    "DELETE FROM {$wpdb->termmeta} WHERE meta_key = %s",
-                    '_kra_etims_server_id'
-                )
-            );
+            // Count before deletion for verification
+            $count_before = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM `{$termmeta_table}` WHERE meta_key = %s",
+                '_kra_etims_server_id'
+            ));
+            error_log("KRA eTims: Found {$count_before} category SID records to clear");
+            
+            // Method 1: Delete primary meta key with backticks for table name
+            $deleted = $wpdb->query($wpdb->prepare(
+                "DELETE FROM `{$termmeta_table}` WHERE meta_key = %s",
+                '_kra_etims_server_id'
+            ));
             
             if ($deleted !== false) {
                 $total_deleted += $deleted;
                 $operations[] = "Category SIDs: {$deleted}";
                 error_log("KRA eTims: Cleared {$deleted} category SIDs");
+            } else {
+                error_log("KRA eTims: ERROR clearing category SIDs: " . $wpdb->last_error);
+                $errors[] = "Category SID deletion failed: " . $wpdb->last_error;
             }
             
-            // Method 2: Also clear any variations of the meta key
+            // Method 2: Clear unspec codes
+            $deleted = $wpdb->query($wpdb->prepare(
+                "DELETE FROM `{$termmeta_table}` WHERE meta_key = %s",
+                '_kra_etims_unspec_code'
+            ));
+            
+            if ($deleted !== false && $deleted > 0) {
+                $total_deleted += $deleted;
+                $operations[] = "Category unspec codes: {$deleted}";
+                error_log("KRA eTims: Cleared {$deleted} unspec codes");
+            }
+            
+            // Method 3: Clear any other KRA-related term meta using LIKE with prepared statement
             $deleted = $wpdb->query(
-                "DELETE FROM {$wpdb->termmeta} WHERE meta_key LIKE '%kra_etims%' OR meta_key LIKE '%server_id%'"
+                "DELETE FROM `{$termmeta_table}` WHERE meta_key LIKE '_kra_etims_%'"
             );
             
             if ($deleted !== false && $deleted > 0) {
                 $total_deleted += $deleted;
-                $operations[] = "Category related meta: {$deleted}";
+                $operations[] = "Other category meta: {$deleted}";
                 error_log("KRA eTims: Cleared {$deleted} additional category meta");
             }
             
             // === PRODUCT DATA CLEARING ===
-            error_log("KRA eTims: Force clearing product KRA data from {$wpdb->postmeta}");
+            error_log("KRA eTims: Force clearing product KRA data from {$postmeta_table}");
             
-            // Clear all KRA-related product meta keys
+            // Count product records before deletion
+            $count_before = $wpdb->get_var(
+                "SELECT COUNT(*) FROM `{$postmeta_table}` WHERE meta_key LIKE '_injonge_%' OR meta_key LIKE '_api_%note' OR meta_key LIKE '_kra_etims_%'"
+            );
+            error_log("KRA eTims: Found {$count_before} product KRA records to clear");
+            
+            // Clear all KRA-related product meta keys using explicit list
             $meta_keys = array(
                 '_injonge_code',
                 '_injonge_sid',
@@ -1257,12 +1288,10 @@ class KRA_eTims_WC_Sync {
             );
             
             foreach ($meta_keys as $meta_key) {
-                $deleted = $wpdb->query(
-                    $wpdb->prepare(
-                        "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
-                        $meta_key
-                    )
-                );
+                $deleted = $wpdb->query($wpdb->prepare(
+                    "DELETE FROM `{$postmeta_table}` WHERE meta_key = %s",
+                    $meta_key
+                ));
                 
                 if ($deleted !== false && $deleted > 0) {
                     $total_deleted += $deleted;
@@ -1271,12 +1300,12 @@ class KRA_eTims_WC_Sync {
                 }
             }
             
-            // Aggressive: Clear any meta that might be related
+            // Aggressive: Clear any remaining meta with LIKE patterns
             $deleted = $wpdb->query(
-                "DELETE FROM {$wpdb->postmeta} WHERE 
-                meta_key LIKE '%injonge%' OR 
-                meta_key LIKE '%kra_etims%' OR 
-                meta_key LIKE '%api_note%'"
+                "DELETE FROM `{$postmeta_table}` WHERE 
+                meta_key LIKE '_injonge_%' OR 
+                meta_key LIKE '_kra_etims_%' OR 
+                meta_key LIKE '_api_%note'"
             );
             
             if ($deleted !== false && $deleted > 0) {
@@ -1299,47 +1328,58 @@ class KRA_eTims_WC_Sync {
         // Re-enable foreign key checks
         $wpdb->query("SET FOREIGN_KEY_CHECKS = 1");
         
-        // Verify clearing worked
+        // Verify clearing worked by counting remaining records
         $category_count = $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$wpdb->termmeta} WHERE meta_key LIKE '%kra_etims%' OR meta_key LIKE '%server_id%'"
+            "SELECT COUNT(*) FROM `{$termmeta_table}` WHERE meta_key LIKE '_kra_etims_%'"
         );
         
         $product_count = $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE 
-            meta_key LIKE '%injonge%' OR 
-            meta_key LIKE '%kra_etims%' OR 
-            meta_key LIKE '%api_note%'"
+            "SELECT COUNT(*) FROM `{$postmeta_table}` WHERE 
+            meta_key LIKE '_injonge_%' OR 
+            meta_key LIKE '_kra_etims_%' OR 
+            meta_key LIKE '_api_%note'"
         );
         
         error_log("KRA eTims: Force clear completed - Total deleted: {$total_deleted}");
         error_log("KRA eTims: Remaining category meta: {$category_count}, product meta: {$product_count}");
         
+        // Clear WordPress object cache to ensure changes are reflected
+        wp_cache_flush();
+        
         // Build response message
-        if ($total_deleted > 0) {
+        if ($total_deleted > 0 || (!empty($operations) && count($operations) > 1)) {
             $message = "Force clear completed! Deleted {$total_deleted} total records<br>";
-            $message .= "<small>Tables used: {$termmeta_table}, {$postmeta_table}</small>";
+            $message .= "<small>Using prefix: {$prefix} | Tables: {$termmeta_table}, {$postmeta_table}</small>";
             
             if (!empty($operations)) {
                 $message .= "<br><br><strong>Details:</strong><br>" . implode('<br>', $operations);
             }
             
             if ($category_count > 0 || $product_count > 0) {
-                $message .= "<br><br><strong>Note:</strong> Found {$category_count} category and {$product_count} product meta records still remaining. Check database manually if needed.";
+                $message .= "<br><br><strong>⚠️ Note:</strong> Found {$category_count} category and {$product_count} product meta records still remaining.";
+                if ($category_count > 0 || $product_count > 0) {
+                    $message .= " Some records may be persistent. Try refreshing the page.";
+                }
+            } else {
+                $message .= "<br><br><strong>✅ Success:</strong> All KRA data has been cleared successfully!";
             }
             
             if (!empty($errors)) {
-                $message .= "<br><br><strong>Errors:</strong><br>" . implode('<br>', $errors);
+                $message .= "<br><br><strong>⚠️ Errors:</strong><br>" . implode('<br>', $errors);
             }
             
             wp_send_json_success($message);
         } else {
-            $message = "No KRA data found to clear";
+            $message = "No KRA data found to clear (or already cleared)";
+            $message .= "<br><small>Prefix: {$prefix}</small>";
             
             if (!empty($errors)) {
-                $message .= ". Errors: " . implode('; ', $errors);
+                $message .= "<br><br><strong>Errors:</strong><br>" . implode('<br>', $errors);
+                wp_send_json_error($message);
+            } else {
+                // If no errors and no data, consider it success (already clean)
+                wp_send_json_success($message);
             }
-            
-            wp_send_json_error($message);
         }
     }
 } 
