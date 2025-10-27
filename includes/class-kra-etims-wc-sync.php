@@ -700,7 +700,15 @@ class KRA_eTims_WC_Sync {
                 continue;
             }
             
-            // NOTE: We DO NOT check for existing SID - force resync all
+            // Get existing SID for logging
+            $old_sid = get_term_meta($category->term_id, '_kra_etims_server_id', true);
+            
+            // Clear the existing SID to force a fresh sync
+            if (!empty($old_sid)) {
+                delete_term_meta($category->term_id, '_kra_etims_server_id');
+                error_log("KRA eTims Resync: Cleared old SID ({$old_sid}) for category '{$category->name}'");
+            }
+            
             error_log("KRA eTims Resync: Force syncing category '{$category->name}'");
             
             // Send category to API
@@ -709,13 +717,29 @@ class KRA_eTims_WC_Sync {
                 
                 if ($result['success']) {
                     $synced_count++;
+                    // Get the new SID for verification
+                    $new_sid = get_term_meta($category->term_id, '_kra_etims_server_id', true);
+                    if ($new_sid) {
+                        error_log("KRA eTims Resync: Category '{$category->name}' updated with new SID: {$new_sid} (old: {$old_sid})");
+                    } else {
+                        error_log("KRA eTims Resync: WARNING - Category '{$category->name}' synced but no SID returned by API");
+                    }
                 } else {
                     $failed_count++;
+                    // Restore old SID if sync failed
+                    if (!empty($old_sid)) {
+                        update_term_meta($category->term_id, '_kra_etims_server_id', $old_sid);
+                        error_log("KRA eTims Resync: Restored old SID for '{$category->name}' after failed sync");
+                    }
                     $error_msg = !empty($result['message']) ? $result['message'] : 'Unknown API error';
                     $errors[] = "'{$category->name}': {$error_msg}";
                 }
             } catch (Exception $e) {
                 $failed_count++;
+                // Restore old SID if exception occurred
+                if (!empty($old_sid)) {
+                    update_term_meta($category->term_id, '_kra_etims_server_id', $old_sid);
+                }
                 $errors[] = "'{$category->name}': " . $e->getMessage();
             }
             
