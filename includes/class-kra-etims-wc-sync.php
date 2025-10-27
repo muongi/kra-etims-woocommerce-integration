@@ -36,6 +36,7 @@ class KRA_eTims_WC_Sync {
         add_action('wp_ajax_kra_etims_get_sync_status', array($this, 'ajax_get_sync_status'));
         add_action('wp_ajax_kra_etims_clear_category_data', array($this, 'ajax_clear_category_data'));
         add_action('wp_ajax_kra_etims_clear_product_data', array($this, 'ajax_clear_product_data'));
+        add_action('wp_ajax_kra_etims_force_clear_all', array($this, 'ajax_force_clear_all'));
     }
     
     /**
@@ -59,6 +60,21 @@ class KRA_eTims_WC_Sync {
         ?>
         <div class="wrap">
             <h1><?php _e('KRA eTims - Sync Categories & Products', 'kra-etims-integration'); ?></h1>
+            
+            <!-- Force Clear All Section -->
+            <div class="kra-etims-force-clear-section" style="background: #fff; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="margin-top: 0; color: #dc3545;">⚠️ Force Clear All KRA Data</h3>
+                <p>Use this to forcefully clear ALL KRA eTims data (categories SIDs, product codes, sync status). This is useful when regular clear buttons are not working.</p>
+                <button id="force-clear-all-btn" class="button button-danger" style="background: #dc3545; color: white; border-color: #dc3545;">
+                    <?php _e('🗑️ Force Clear All KRA Data', 'kra-etims-integration'); ?>
+                </button>
+                <div id="force-clear-progress" style="display: none; margin-top: 10px;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p id="force-clear-status"></p>
+                </div>
+            </div>
             
             <div class="kra-etims-sync-container">
                 <!-- Categories Section -->
@@ -186,6 +202,47 @@ class KRA_eTims_WC_Sync {
         
         <script>
         jQuery(document).ready(function($) {
+            // Force Clear All KRA Data
+            $('#force-clear-all-btn').on('click', function() {
+                if (!confirm('⚠️ WARNING: This will forcefully delete ALL KRA eTims data:\n\n• All category Server IDs (SID)\n• All product injonge codes\n• All product SIDs\n• All sync status records\n• All API notes\n\nThis action CANNOT be undone!\n\nAre you absolutely sure?')) {
+                    return;
+                }
+                
+                var $btn = $(this);
+                var $progress = $('#force-clear-progress');
+                var $status = $('#force-clear-status');
+                
+                $btn.prop('disabled', true);
+                $progress.show();
+                $status.text('Forcefully clearing all KRA data...');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'kra_etims_force_clear_all',
+                        nonce: '<?php echo wp_create_nonce('kra_etims_sync'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $status.html('<strong style="color: green;">✅ ' + response.data + '</strong>');
+                            $('.progress-fill').css('width', '100%');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 3000);
+                        } else {
+                            $status.html('<strong style="color: red;">❌ Error: ' + response.data + '</strong>');
+                        }
+                    },
+                    error: function() {
+                        $status.html('<strong style="color: red;">❌ Network error occurred</strong>');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                    }
+                });
+            });
+            
             // Sync Categories
             $('#sync-categories-btn').on('click', function() {
                 var $btn = $(this);
@@ -1074,6 +1131,161 @@ class KRA_eTims_WC_Sync {
             wp_send_json_success($message);
         } else {
             wp_send_json_error('Failed to clear product data - database query returned false');
+        }
+    }
+    
+    /**
+     * AJAX force clear all KRA data (both categories and products)
+     * Uses aggressive clearing methods when regular clear fails
+     */
+    public function ajax_force_clear_all() {
+        check_ajax_referer('kra_etims_sync', 'nonce');
+        
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        global $wpdb;
+        
+        error_log("KRA eTims: Force Clear All - Starting aggressive data clearing");
+        
+        $total_deleted = 0;
+        $operations = array();
+        $errors = array();
+        
+        // Disable foreign key checks temporarily (if supported)
+        $wpdb->query("SET FOREIGN_KEY_CHECKS = 0");
+        
+        try {
+            // === CATEGORY DATA CLEARING ===
+            error_log("KRA eTims: Force clearing category SIDs from {$wpdb->termmeta}");
+            
+            // Method 1: Prepared statement DELETE
+            $deleted = $wpdb->query(
+                $wpdb->prepare(
+                    "DELETE FROM {$wpdb->termmeta} WHERE meta_key = %s",
+                    '_kra_etims_server_id'
+                )
+            );
+            
+            if ($deleted !== false) {
+                $total_deleted += $deleted;
+                $operations[] = "Category SIDs: {$deleted}";
+                error_log("KRA eTims: Cleared {$deleted} category SIDs");
+            }
+            
+            // Method 2: Also clear any variations of the meta key
+            $deleted = $wpdb->query(
+                "DELETE FROM {$wpdb->termmeta} WHERE meta_key LIKE '%kra_etims%' OR meta_key LIKE '%server_id%'"
+            );
+            
+            if ($deleted !== false && $deleted > 0) {
+                $total_deleted += $deleted;
+                $operations[] = "Category related meta: {$deleted}";
+                error_log("KRA eTims: Cleared {$deleted} additional category meta");
+            }
+            
+            // === PRODUCT DATA CLEARING ===
+            error_log("KRA eTims: Force clearing product KRA data from {$wpdb->postmeta}");
+            
+            // Clear all KRA-related product meta keys
+            $meta_keys = array(
+                '_injonge_code',
+                '_injonge_sid',
+                '_injonge_category_sid',
+                '_injonge_status',
+                '_injonge_last_sync',
+                '_injonge_response',
+                '_injonge_error',
+                '_api_note',
+                '_api_error_note',
+                '_kra_etims_server_id',
+                '_kra_etims_synced'
+            );
+            
+            foreach ($meta_keys as $meta_key) {
+                $deleted = $wpdb->query(
+                    $wpdb->prepare(
+                        "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s",
+                        $meta_key
+                    )
+                );
+                
+                if ($deleted !== false && $deleted > 0) {
+                    $total_deleted += $deleted;
+                    $operations[] = "{$meta_key}: {$deleted}";
+                    error_log("KRA eTims: Cleared {$deleted} records for {$meta_key}");
+                }
+            }
+            
+            // Aggressive: Clear any meta that might be related
+            $deleted = $wpdb->query(
+                "DELETE FROM {$wpdb->postmeta} WHERE 
+                meta_key LIKE '%injonge%' OR 
+                meta_key LIKE '%kra_etims%' OR 
+                meta_key LIKE '%api_note%'"
+            );
+            
+            if ($deleted !== false && $deleted > 0) {
+                $total_deleted += $deleted;
+                $operations[] = "Additional product meta: {$deleted}";
+                error_log("KRA eTims: Cleared {$deleted} additional product meta");
+            }
+            
+            // Check for database errors
+            if ($wpdb->last_error) {
+                $errors[] = $wpdb->last_error;
+                error_log("KRA eTims: Database error during force clear: " . $wpdb->last_error);
+            }
+            
+        } catch (Exception $e) {
+            $errors[] = $e->getMessage();
+            error_log("KRA eTims: Exception during force clear: " . $e->getMessage());
+        }
+        
+        // Re-enable foreign key checks
+        $wpdb->query("SET FOREIGN_KEY_CHECKS = 1");
+        
+        // Verify clearing worked
+        $category_count = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->termmeta} WHERE meta_key LIKE '%kra_etims%' OR meta_key LIKE '%server_id%'"
+        );
+        
+        $product_count = $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE 
+            meta_key LIKE '%injonge%' OR 
+            meta_key LIKE '%kra_etims%' OR 
+            meta_key LIKE '%api_note%'"
+        );
+        
+        error_log("KRA eTims: Force clear completed - Total deleted: {$total_deleted}");
+        error_log("KRA eTims: Remaining category meta: {$category_count}, product meta: {$product_count}");
+        
+        // Build response message
+        if ($total_deleted > 0) {
+            $message = "Force clear completed! Deleted {$total_deleted} total records";
+            
+            if (!empty($operations)) {
+                $message .= "<br><br><strong>Details:</strong><br>" . implode('<br>', $operations);
+            }
+            
+            if ($category_count > 0 || $product_count > 0) {
+                $message .= "<br><br><strong>Note:</strong> Found {$category_count} category and {$product_count} product meta records still remaining. Check database manually if needed.";
+            }
+            
+            if (!empty($errors)) {
+                $message .= "<br><br><strong>Errors:</strong><br>" . implode('<br>', $errors);
+            }
+            
+            wp_send_json_success($message);
+        } else {
+            $message = "No KRA data found to clear";
+            
+            if (!empty($errors)) {
+                $message .= ". Errors: " . implode('; ', $errors);
+            }
+            
+            wp_send_json_error($message);
         }
     }
 } 
