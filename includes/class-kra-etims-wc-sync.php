@@ -499,30 +499,62 @@ class KRA_eTims_WC_Sync {
         ));
         
         $synced_count = 0;
+        $skipped_count = 0;
+        $failed_count = 0;
         $errors = array();
         
         foreach ($categories as $category) {
             $unspec_code = get_term_meta($category->term_id, '_kra_etims_unspec_code', true);
             
             if (empty($unspec_code)) {
-                $errors[] = "Category '{$category->name}' has no item code set";
-                continue;
+                $skipped_count++;
+                continue; // Skip and continue to next category
             }
             
             // Send category to API
-            $result = $this->send_category_to_api($category, $unspec_code);
+            try {
+                $result = $this->send_category_to_api($category, $unspec_code);
+                
+                if ($result['success']) {
+                    $synced_count++;
+                } else {
+                    $failed_count++;
+                    $error_msg = !empty($result['message']) ? $result['message'] : 'Unknown API error';
+                    $errors[] = "'{$category->name}': {$error_msg}";
+                }
+            } catch (Exception $e) {
+                $failed_count++;
+                $errors[] = "'{$category->name}': " . $e->getMessage();
+            }
             
-            if ($result['success']) {
-                $synced_count++;
-            } else {
-                $errors[] = "Failed to sync category '{$category->name}': " . $result['message'];
+            // Continue to next category regardless of success or failure
+        }
+        
+        $total_categories = count($categories);
+        
+        // Build success message
+        $message = "Sync completed: {$synced_count} successful";
+        
+        if ($skipped_count > 0) {
+            $message .= ", {$skipped_count} skipped (no unspec code)";
+        }
+        
+        if ($failed_count > 0) {
+            $message .= ", {$failed_count} failed";
+            if (!empty($errors)) {
+                $message .= " - Failed categories: " . implode(' | ', array_slice($errors, 0, 5));
+                if (count($errors) > 5) {
+                    $message .= " (and " . (count($errors) - 5) . " more)";
+                }
             }
         }
         
-        if ($synced_count > 0) {
-            wp_send_json_success("Successfully synced {$synced_count} categories. " . implode('; ', $errors));
+        // Always return success if at least one category synced, or if all were skipped
+        if ($synced_count > 0 || $failed_count === 0) {
+            wp_send_json_success($message);
         } else {
-            wp_send_json_error(implode('; ', $errors));
+            // Only return error if ALL categories failed
+            wp_send_json_error($message);
         }
     }
     
@@ -543,6 +575,7 @@ class KRA_eTims_WC_Sync {
         
         $synced_count = 0;
         $skipped_count = 0;
+        $failed_count = 0;
         $errors = array();
         
         foreach ($products as $product) {
@@ -551,34 +584,61 @@ class KRA_eTims_WC_Sync {
             
             if (!$categories || is_wp_error($categories)) {
                 $skipped_count++;
-                continue;
+                continue; // Skip and continue to next product
             }
             
             $primary_category = $categories[0];
-                            $unspec_code = get_term_meta($primary_category->term_id, '_kra_etims_unspec_code', true);
+            $unspec_code = get_term_meta($primary_category->term_id, '_kra_etims_unspec_code', true);
             $server_id = get_term_meta($primary_category->term_id, '_kra_etims_server_id', true);
             
             if (empty($unspec_code) || empty($server_id)) {
                 $skipped_count++;
-                continue;
+                continue; // Skip and continue to next product
             }
             
             // Send product to API
-            $result = $this->send_product_to_api($product, $primary_category);
+            try {
+                $result = $this->send_product_to_api($product, $primary_category);
+                
+                if ($result['success']) {
+                    $synced_count++;
+                } else {
+                    $failed_count++;
+                    $error_msg = !empty($result['message']) ? $result['message'] : 'Unknown API error';
+                    $errors[] = "'{$product->get_name()}': {$error_msg}";
+                }
+            } catch (Exception $e) {
+                $failed_count++;
+                $errors[] = "'{$product->get_name()}': " . $e->getMessage();
+            }
             
-            if ($result['success']) {
-                $synced_count++;
-            } else {
-                $errors[] = "Failed to sync product '{$product->get_name()}': " . $result['message'];
+            // Continue to next product regardless of success or failure
+        }
+        
+        // Build success message
+        $message = "Sync completed: {$synced_count} successful";
+        
+        if ($skipped_count > 0) {
+            $message .= ", {$skipped_count} skipped (no category/SID)";
+        }
+        
+        if ($failed_count > 0) {
+            $message .= ", {$failed_count} failed";
+            if (!empty($errors)) {
+                $message .= " - Failed products: " . implode(' | ', array_slice($errors, 0, 5));
+                if (count($errors) > 5) {
+                    $message .= " (and " . (count($errors) - 5) . " more)";
+                }
             }
         }
         
-        $message = "Successfully synced {$synced_count} products. Skipped {$skipped_count} products.";
-        if (!empty($errors)) {
-            $message .= " Errors: " . implode('; ', $errors);
+        // Always return success if at least one product synced, or if all were skipped
+        if ($synced_count > 0 || $failed_count === 0) {
+            wp_send_json_success($message);
+        } else {
+            // Only return error if ALL products failed
+            wp_send_json_error($message);
         }
-        
-        wp_send_json_success($message);
     }
     
     /**
