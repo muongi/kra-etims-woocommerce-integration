@@ -31,6 +31,7 @@ class KRA_eTims_WC_Sync {
         // Add admin hooks
         add_action('admin_menu', array($this, 'add_sync_menu'));
         add_action('wp_ajax_kra_etims_sync_categories', array($this, 'ajax_sync_categories'));
+        add_action('wp_ajax_kra_etims_resync_categories', array($this, 'ajax_resync_categories'));
         add_action('wp_ajax_kra_etims_sync_products', array($this, 'ajax_sync_products'));
         add_action('wp_ajax_kra_etims_get_sync_status', array($this, 'ajax_get_sync_status'));
         add_action('wp_ajax_kra_etims_clear_category_data', array($this, 'ajax_clear_category_data'));
@@ -70,7 +71,10 @@ class KRA_eTims_WC_Sync {
                     </div>
                     
                     <button id="sync-categories-btn" class="button button-primary">
-                        <?php _e('Sync Categories to API', 'kra-etims-integration'); ?>
+                        <?php _e('Sync New Categories', 'kra-etims-integration'); ?>
+                    </button>
+                    <button id="resync-categories-btn" class="button button-primary" style="margin-left: 10px;">
+                        <?php _e('Force Resync All', 'kra-etims-integration'); ?>
                     </button>
                     <button id="clear-categories-btn" class="button button-secondary" style="margin-left: 10px;">
                         <?php _e('Clear Category SIDs', 'kra-etims-integration'); ?>
@@ -239,6 +243,47 @@ class KRA_eTims_WC_Sync {
                     success: function(response) {
                         if (response.success) {
                             $status.text('Products synced successfully!');
+                            $('.progress-fill').css('width', '100%');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            $status.text('Error: ' + response.data);
+                        }
+                    },
+                    error: function() {
+                        $status.text('Network error occurred');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                    }
+                });
+            });
+            
+            // Force Resync All Categories
+            $('#resync-categories-btn').on('click', function() {
+                if (!confirm('This will resync ALL categories (including those already synced). Continue?')) {
+                    return;
+                }
+                
+                var $btn = $(this);
+                var $progress = $('#category-sync-progress');
+                var $status = $('#category-sync-status');
+                
+                $btn.prop('disabled', true);
+                $progress.show();
+                $status.text('Force resyncing all categories...');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'kra_etims_resync_categories',
+                        nonce: '<?php echo wp_create_nonce('kra_etims_sync'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $status.text('Categories resynced successfully!');
                             $('.progress-fill').css('width', '100%');
                             setTimeout(function() {
                                 location.reload();
@@ -524,6 +569,85 @@ class KRA_eTims_WC_Sync {
             
             // Send category to API
             try {
+            $result = $this->send_category_to_api($category, $unspec_code);
+            
+            if ($result['success']) {
+                $synced_count++;
+            } else {
+                    $failed_count++;
+                    $error_msg = !empty($result['message']) ? $result['message'] : 'Unknown API error';
+                    $errors[] = "'{$category->name}': {$error_msg}";
+                }
+            } catch (Exception $e) {
+                $failed_count++;
+                $errors[] = "'{$category->name}': " . $e->getMessage();
+            }
+            
+            // Continue to next category regardless of success or failure
+        }
+        
+        $total_categories = count($categories);
+        
+        // Build success message
+        $message = "Sync completed: {$synced_count} successful";
+        
+        if ($skipped_count > 0) {
+            $message .= ", {$skipped_count} skipped (no unspec code or already synced)";
+        }
+        
+        if ($failed_count > 0) {
+            $message .= ", {$failed_count} failed";
+            if (!empty($errors)) {
+                $message .= " - Failed categories: " . implode(' | ', array_slice($errors, 0, 5));
+                if (count($errors) > 5) {
+                    $message .= " (and " . (count($errors) - 5) . " more)";
+                }
+            }
+        }
+        
+        // Always return success if at least one category synced, or if all were skipped
+        if ($synced_count > 0 || $failed_count === 0) {
+            wp_send_json_success($message);
+        } else {
+            // Only return error if ALL categories failed
+            wp_send_json_error($message);
+        }
+    }
+    
+    /**
+     * AJAX resync categories (force sync all, including those with SID)
+     */
+    public function ajax_resync_categories() {
+        check_ajax_referer('kra_etims_sync', 'nonce');
+        
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        $categories = get_terms(array(
+            'taxonomy' => 'product_cat',
+            'hide_empty' => false,
+        ));
+        
+        $synced_count = 0;
+        $skipped_count = 0;
+        $failed_count = 0;
+        $errors = array();
+        
+        foreach ($categories as $category) {
+            $unspec_code = get_term_meta($category->term_id, '_kra_etims_unspec_code', true);
+            
+            // Skip categories without unspec code
+            if (empty($unspec_code)) {
+                $skipped_count++;
+                continue;
+            }
+            
+            // NOTE: We DO NOT check for existing SID - force resync all
+            error_log("KRA eTims Resync: Force syncing category '{$category->name}'");
+            
+            // Send category to API
+            try {
                 $result = $this->send_category_to_api($category, $unspec_code);
                 
                 if ($result['success']) {
@@ -544,10 +668,10 @@ class KRA_eTims_WC_Sync {
         $total_categories = count($categories);
         
         // Build success message
-        $message = "Sync completed: {$synced_count} successful";
+        $message = "Force resync completed: {$synced_count} successful";
         
         if ($skipped_count > 0) {
-            $message .= ", {$skipped_count} skipped (no unspec code or already synced)";
+            $message .= ", {$skipped_count} skipped (no unspec code)";
         }
         
         if ($failed_count > 0) {
@@ -599,7 +723,7 @@ class KRA_eTims_WC_Sync {
             }
             
             $primary_category = $categories[0];
-            $unspec_code = get_term_meta($primary_category->term_id, '_kra_etims_unspec_code', true);
+                            $unspec_code = get_term_meta($primary_category->term_id, '_kra_etims_unspec_code', true);
             $server_id = get_term_meta($primary_category->term_id, '_kra_etims_server_id', true);
             
             if (empty($unspec_code) || empty($server_id)) {
@@ -609,11 +733,11 @@ class KRA_eTims_WC_Sync {
             
             // Send product to API
             try {
-                $result = $this->send_product_to_api($product, $primary_category);
-                
-                if ($result['success']) {
-                    $synced_count++;
-                } else {
+            $result = $this->send_product_to_api($product, $primary_category);
+            
+            if ($result['success']) {
+                $synced_count++;
+            } else {
                     $failed_count++;
                     $error_msg = !empty($result['message']) ? $result['message'] : 'Unknown API error';
                     $errors[] = "'{$product->get_name()}': {$error_msg}";
@@ -635,7 +759,7 @@ class KRA_eTims_WC_Sync {
         
         if ($failed_count > 0) {
             $message .= ", {$failed_count} failed";
-            if (!empty($errors)) {
+        if (!empty($errors)) {
                 $message .= " - Failed products: " . implode(' | ', array_slice($errors, 0, 5));
                 if (count($errors) > 5) {
                     $message .= " (and " . (count($errors) - 5) . " more)";
@@ -645,7 +769,7 @@ class KRA_eTims_WC_Sync {
         
         // Always return success if at least one product synced, or if all were skipped
         if ($synced_count > 0 || $failed_count === 0) {
-            wp_send_json_success($message);
+        wp_send_json_success($message);
         } else {
             // Only return error if ALL products failed
             wp_send_json_error($message);
