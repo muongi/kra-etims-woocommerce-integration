@@ -33,6 +33,8 @@ class KRA_eTims_WC_Sync {
         add_action('wp_ajax_kra_etims_sync_categories', array($this, 'ajax_sync_categories'));
         add_action('wp_ajax_kra_etims_sync_products', array($this, 'ajax_sync_products'));
         add_action('wp_ajax_kra_etims_get_sync_status', array($this, 'ajax_get_sync_status'));
+        add_action('wp_ajax_kra_etims_clear_category_data', array($this, 'ajax_clear_category_data'));
+        add_action('wp_ajax_kra_etims_clear_product_data', array($this, 'ajax_clear_product_data'));
     }
     
     /**
@@ -70,6 +72,9 @@ class KRA_eTims_WC_Sync {
                     <button id="sync-categories-btn" class="button button-primary">
                         <?php _e('Sync Categories to API', 'kra-etims-integration'); ?>
                     </button>
+                    <button id="clear-categories-btn" class="button button-secondary" style="margin-left: 10px;">
+                        <?php _e('Clear Category SIDs', 'kra-etims-integration'); ?>
+                    </button>
                     
                     <div id="category-sync-progress" style="display: none;">
                         <div class="progress-bar">
@@ -90,6 +95,9 @@ class KRA_eTims_WC_Sync {
                     
                     <button id="sync-products-btn" class="button button-primary">
                         <?php _e('Sync Products to API', 'kra-etims-integration'); ?>
+                    </button>
+                    <button id="clear-products-btn" class="button button-secondary" style="margin-left: 10px;">
+                        <?php _e('Clear Product Data', 'kra-etims-integration'); ?>
                     </button>
                     
                     <div id="product-sync-progress" style="display: none;">
@@ -231,6 +239,88 @@ class KRA_eTims_WC_Sync {
                     success: function(response) {
                         if (response.success) {
                             $status.text('Products synced successfully!');
+                            $('.progress-fill').css('width', '100%');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            $status.text('Error: ' + response.data);
+                        }
+                    },
+                    error: function() {
+                        $status.text('Network error occurred');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                    }
+                });
+            });
+            
+            // Clear Category Data
+            $('#clear-categories-btn').on('click', function() {
+                if (!confirm('Are you sure you want to clear all Category Server IDs (SID)? This action cannot be undone.')) {
+                    return;
+                }
+                
+                var $btn = $(this);
+                var $progress = $('#category-sync-progress');
+                var $status = $('#category-sync-status');
+                
+                $btn.prop('disabled', true);
+                $progress.show();
+                $status.text('Clearing category data...');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'kra_etims_clear_category_data',
+                        nonce: '<?php echo wp_create_nonce('kra_etims_sync'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $status.text('Category data cleared successfully!');
+                            $('.progress-fill').css('width', '100%');
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            $status.text('Error: ' + response.data);
+                        }
+                    },
+                    error: function() {
+                        $status.text('Network error occurred');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false);
+                    }
+                });
+            });
+            
+            // Clear Product Data
+            $('#clear-products-btn').on('click', function() {
+                if (!confirm('Are you sure you want to clear all Product KRA data (injonge codes, SIDs, sync status)? This action cannot be undone.')) {
+                    return;
+                }
+                
+                var $btn = $(this);
+                var $progress = $('#product-sync-progress');
+                var $status = $('#product-sync-status');
+                
+                $btn.prop('disabled', true);
+                $progress.show();
+                $status.text('Clearing product data...');
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'kra_etims_clear_product_data',
+                        nonce: '<?php echo wp_create_nonce('kra_etims_sync'); ?>'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $status.text('Product data cleared successfully!');
                             $('.progress-fill').css('width', '100%');
                             setTimeout(function() {
                                 location.reload();
@@ -579,6 +669,81 @@ class KRA_eTims_WC_Sync {
             return array('success' => true, 'message' => 'Product synced successfully');
         } else {
             return array('success' => false, 'message' => isset($data['message']) ? $data['message'] : 'Unknown error');
+        }
+    }
+    
+    /**
+     * AJAX clear category data
+     */
+    public function ajax_clear_category_data() {
+        check_ajax_referer('kra_etims_sync', 'nonce');
+        
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        global $wpdb;
+        
+        // Delete all category SIDs
+        $deleted = $wpdb->query(
+            "DELETE FROM {$wpdb->termmeta} WHERE meta_key = '_kra_etims_server_id'"
+        );
+        
+        if ($deleted !== false) {
+            wp_send_json_success("Successfully cleared {$deleted} category SID record(s)");
+        } else {
+            wp_send_json_error('Failed to clear category data');
+        }
+    }
+    
+    /**
+     * AJAX clear product data
+     */
+    public function ajax_clear_product_data() {
+        check_ajax_referer('kra_etims_sync', 'nonce');
+        
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error('Insufficient permissions');
+        }
+        
+        global $wpdb;
+        
+        $total_deleted = 0;
+        
+        // Clear Product Injonge Codes
+        $deleted = $wpdb->query(
+            "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_injonge_code'"
+        );
+        $total_deleted += $deleted;
+        
+        // Clear Product SIDs
+        $deleted = $wpdb->query(
+            "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_injonge_sid'"
+        );
+        $total_deleted += $deleted;
+        
+        // Clear Product Category SIDs
+        $deleted = $wpdb->query(
+            "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_injonge_category_sid'"
+        );
+        $total_deleted += $deleted;
+        
+        // Clear Product Sync Status
+        $deleted = $wpdb->query(
+            "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_injonge_status', '_injonge_last_sync', '_injonge_response', '_injonge_error')"
+        );
+        $total_deleted += $deleted;
+        
+        // Clear API Notes
+        $deleted = $wpdb->query(
+            "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_api_note', '_api_error_note')"
+        );
+        $total_deleted += $deleted;
+        
+        if ($total_deleted !== false) {
+            wp_send_json_success("Successfully cleared {$total_deleted} product KRA data record(s)");
+        } else {
+            wp_send_json_error('Failed to clear product data');
         }
     }
 } 
