@@ -53,6 +53,17 @@ class KRA_eTims_WC_Tax_Handler {
         // Setup WooCommerce taxes on plugin activation
         add_action('admin_init', array($this, 'maybe_setup_taxes'));
         
+        // Ensure tax settings are correct on cart/checkout load
+        add_action('woocommerce_cart_loaded_from_session', array($this, 'ensure_tax_settings'));
+        add_action('wp_loaded', array($this, 'ensure_tax_settings'));
+        
+        // Force tax-inclusive display in cart
+        add_filter('woocommerce_cart_item_price', array($this, 'force_tax_inclusive_price_display'), 10, 3);
+        add_filter('woocommerce_cart_item_subtotal', array($this, 'force_tax_inclusive_subtotal_display'), 10, 3);
+        
+        // Override WooCommerce cart display methods to always show tax-inclusive
+        add_filter('woocommerce_cart_subtotal', array($this, 'force_cart_subtotal_incl_tax'), 10, 1);
+        
         // Add tax class field to product edit page
         add_action('woocommerce_product_options_tax', array($this, 'add_kra_tax_type_field'));
         
@@ -106,6 +117,90 @@ class KRA_eTims_WC_Tax_Handler {
         $this->setup_tax_rates();
         
         error_log('KRA eTims: WooCommerce taxes configured for KRA compliance');
+    }
+
+    /**
+     * Ensure tax settings are correct (called on cart load and page load)
+     */
+    public function ensure_tax_settings() {
+        // Force settings to be correct every time
+        if (get_option('woocommerce_prices_include_tax') !== 'yes') {
+            update_option('woocommerce_prices_include_tax', 'yes');
+        }
+        if (get_option('woocommerce_tax_display_cart') !== 'incl') {
+            update_option('woocommerce_tax_display_cart', 'incl');
+        }
+        if (get_option('woocommerce_tax_display_shop') !== 'incl') {
+            update_option('woocommerce_tax_display_shop', 'incl');
+        }
+        if (get_option('woocommerce_calc_taxes') !== 'yes') {
+            update_option('woocommerce_calc_taxes', 'yes');
+        }
+    }
+
+    /**
+     * Force tax-inclusive price display in cart
+     * 
+     * @param string $price Price HTML
+     * @param array $cart_item Cart item data
+     * @param string $cart_item_key Cart item key
+     * @return string Modified price HTML
+     */
+    public function force_tax_inclusive_price_display($price, $cart_item, $cart_item_key) {
+        if (!isset($cart_item['data']) || !is_a($cart_item['data'], 'WC_Product')) {
+            return $price;
+        }
+        
+        $product = $cart_item['data'];
+        
+        // Get price including tax
+        $price_incl_tax = wc_get_price_including_tax($product);
+        
+        // Return formatted price with tax included
+        return wc_price($price_incl_tax);
+    }
+
+    /**
+     * Force tax-inclusive subtotal display in cart
+     * 
+     * @param string $subtotal Subtotal HTML
+     * @param array $cart_item Cart item data
+     * @param string $cart_item_key Cart item key
+     * @return string Modified subtotal HTML
+     */
+    public function force_tax_inclusive_subtotal_display($subtotal, $cart_item, $cart_item_key) {
+        if (!isset($cart_item['data']) || !is_a($cart_item['data'], 'WC_Product')) {
+            return $subtotal;
+        }
+        
+        $product = $cart_item['data'];
+        $quantity = isset($cart_item['quantity']) ? $cart_item['quantity'] : 1;
+        
+        // Get subtotal including tax (price * quantity)
+        $subtotal_incl_tax = wc_get_price_including_tax($product, array('qty' => $quantity));
+        
+        // Return formatted subtotal with tax included
+        return wc_price($subtotal_incl_tax);
+    }
+
+    /**
+     * Force cart subtotal to show tax-inclusive
+     * 
+     * @param string $subtotal Cart subtotal HTML
+     * @return string Modified subtotal HTML
+     */
+    public function force_cart_subtotal_incl_tax($subtotal) {
+        if (!WC()->cart) {
+            return $subtotal;
+        }
+        
+        // Get cart subtotal including tax
+        $cart_subtotal = WC()->cart->get_subtotal();
+        $cart_subtotal_tax = WC()->cart->get_subtotal_tax();
+        $subtotal_incl_tax = $cart_subtotal + $cart_subtotal_tax;
+        
+        // Return formatted subtotal with tax included
+        return wc_price($subtotal_incl_tax);
     }
 
     /**
