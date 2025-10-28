@@ -537,7 +537,7 @@ class KRA_eTims_WC_Sync {
         $needs_sid = 0;
         
         echo '<table class="status-table">';
-        echo '<tr><th>Product</th><th>Category</th><th>Unspec Code</th><th>SID</th><th>Status</th></tr>';
+        echo '<tr><th>Product</th><th>Category</th><th>Unspec Code</th><th>SID</th><th>Injonge Code</th><th>Status</th></tr>';
         
         foreach ($products as $product) {
             $product_id = $product->get_id();
@@ -546,6 +546,7 @@ class KRA_eTims_WC_Sync {
             $category_name = 'No Category';
             $unspec_code = 'Not Set';
             $server_id = 'Not Set';
+            $injonge_code = get_post_meta($product_id, '_injonge_code', true);
             $status_class = 'status-error';
             $status_text = 'No Category';
             
@@ -573,11 +574,15 @@ class KRA_eTims_WC_Sync {
                 $needs_category++;
             }
             
+            // Format injonge code display
+            $injonge_display = empty($injonge_code) ? '<span style="color: #999;">Not Set</span>' : '<code style="background: #f0f6fc; padding: 3px 6px; border-radius: 3px; font-weight: bold; color: #0073aa;">' . esc_html($injonge_code) . '</code>';
+            
             echo '<tr>';
             echo '<td>' . esc_html($product->get_name()) . '</td>';
             echo '<td>' . esc_html($category_name) . '</td>';
             echo '<td>' . esc_html($unspec_code) . '</td>';
             echo '<td>' . esc_html($server_id) . '</td>';
+            echo '<td>' . $injonge_display . '</td>';
             echo '<td class="' . $status_class . '">' . esc_html($status_text) . '</td>';
             echo '</tr>';
         }
