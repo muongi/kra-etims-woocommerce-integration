@@ -23,6 +23,12 @@ class KRA_eTims_WC_Receipt_Display {
         add_action('woocommerce_order_details_after_order_table', array($this, 'display_receipt_details'), 10, 1);
         add_action('woocommerce_email_order_details', array($this, 'display_receipt_details_email'), 10, 4);
         add_filter('woocommerce_order_formatted_line_items', array($this, 'add_receipt_info_to_items'), 10, 2);
+        
+        // Add hooks for displaying injonge codes in order items
+        add_filter('woocommerce_order_item_name', array($this, 'display_injonge_code_in_item_name'), 10, 3);
+        add_action('woocommerce_after_order_itemmeta', array($this, 'display_injonge_code_in_admin'), 10, 3);
+        add_filter('woocommerce_order_item_display_meta_key', array($this, 'format_injonge_code_meta_key'), 10, 3);
+        add_filter('woocommerce_order_item_display_meta_value', array($this, 'format_injonge_code_meta_value'), 10, 3);
     }
     
     /**
@@ -347,5 +353,106 @@ class KRA_eTims_WC_Receipt_Display {
         }
         
         return $receipt_signature;
+    }
+    
+    /**
+     * Display injonge code in order item name (frontend and emails)
+     *
+     * @param string $name Item name
+     * @param WC_Order_Item $item Order item
+     * @param bool $is_visible Whether item is visible
+     * @return string Modified item name
+     */
+    public function display_injonge_code_in_item_name($name, $item, $is_visible) {
+        // Get injonge code from item meta
+        $injonge_code = '';
+        if (method_exists($item, 'get_meta')) {
+            $injonge_code = $item->get_meta('_injonge_code');
+        } elseif (isset($item['_injonge_code'])) {
+            $injonge_code = $item['_injonge_code'];
+        }
+        
+        // If no injonge code in item meta, try to get from product
+        if (empty($injonge_code)) {
+            $product_id = 0;
+            if (method_exists($item, 'get_product_id')) {
+                $product_id = $item->get_product_id();
+            } elseif (isset($item['product_id'])) {
+                $product_id = $item['product_id'];
+            }
+            
+            if ($product_id) {
+                $injonge_code = get_post_meta($product_id, '_injonge_code', true);
+            }
+        }
+        
+        // Add injonge code to item name if available
+        if (!empty($injonge_code)) {
+            $name .= ' <span class="injonge-code" style="font-size: 0.9em; color: #666; font-weight: normal;">(' . __('Code:', 'kra-etims-integration') . ' <code>' . esc_html($injonge_code) . '</code>)</span>';
+        }
+        
+        return $name;
+    }
+    
+    /**
+     * Display injonge code in admin order item details
+     *
+     * @param int $item_id Item ID
+     * @param WC_Order_Item $item Order item
+     * @param WC_Product $product Product object
+     */
+    public function display_injonge_code_in_admin($item_id, $item, $product) {
+        // Get injonge code from item meta
+        $injonge_code = '';
+        if (method_exists($item, 'get_meta')) {
+            $injonge_code = $item->get_meta('_injonge_code');
+        } elseif (isset($item['_injonge_code'])) {
+            $injonge_code = $item['_injonge_code'];
+        }
+        
+        // If no injonge code in item meta, try to get from product
+        if (empty($injonge_code) && $product) {
+            $injonge_code = get_post_meta($product->get_id(), '_injonge_code', true);
+        }
+        
+        // Display injonge code if available
+        if (!empty($injonge_code)) {
+            ?>
+            <div class="order-item-injonge-code" style="margin-top: 5px; padding: 5px; background: #f0f6fc; border-left: 3px solid #0073aa;">
+                <strong><?php _e('Injonge Code:', 'kra-etims-integration'); ?></strong> 
+                <code style="background: #fff; padding: 2px 6px; border-radius: 3px; font-weight: bold;"><?php echo esc_html($injonge_code); ?></code>
+            </div>
+            <?php
+        }
+    }
+    
+    /**
+     * Format injonge code meta key for display
+     *
+     * @param string $display_key Display key
+     * @param object $meta Meta object
+     * @param WC_Order_Item $item Order item
+     * @return string Formatted key
+     */
+    public function format_injonge_code_meta_key($display_key, $meta, $item) {
+        if ($meta->key === '_injonge_code') {
+            return __('Injonge Code', 'kra-etims-integration');
+        }
+        return $display_key;
+    }
+    
+    /**
+     * Format injonge code meta value for display
+     *
+     * @param string $display_value Display value
+     * @param object $meta Meta object
+     * @param WC_Order_Item $item Order item
+     * @return string Formatted value
+     */
+    public function format_injonge_code_meta_value($display_value, $meta, $item) {
+        if ($meta->key === '_injonge_code') {
+            return '<code style="background: #f0f6fc; padding: 2px 6px; border-radius: 3px; font-weight: bold; color: #0073aa;">' . esc_html($meta->value) . '</code>';
+        }
+        return $display_value;
     }
 } 

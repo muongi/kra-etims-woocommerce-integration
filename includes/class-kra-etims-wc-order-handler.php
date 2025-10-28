@@ -400,6 +400,15 @@ class KRA_eTims_WC_Order_Handler {
                 $unspec_code = '2711290500'; // Default classification code
             }
             
+            // Save injonge code to order item meta (for display in order details)
+            if (method_exists($item, 'add_meta_data')) {
+                $item->add_meta_data('_injonge_code', $injonge_code, true);
+                $item->save_meta_data();
+            } else {
+                // Fallback for older WooCommerce versions
+                wc_add_order_item_meta($item_id, '_injonge_code', $injonge_code, true);
+            }
+            
             // Add to totals based on tax type
             switch ($tax_type) {
                 case 'A': // Exempt (0%)
