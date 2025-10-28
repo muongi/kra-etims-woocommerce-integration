@@ -308,6 +308,46 @@ class KRA_eTims_WC {
                     <?php _e('Submit to Custom API', 'kra-etims-integration'); ?>
                 </a>
             </p>
+            
+            <?php 
+            // Show refund button only to admins and if order was successfully submitted
+            if (current_user_can('manage_options') && $custom_api_status === 'success'):
+                $refund_status = get_post_meta($order_id, '_custom_api_refund_status', true);
+                if ($refund_status !== 'success'):
+            ?>
+            <p>
+                <a href="<?php echo wp_nonce_url(admin_url('admin-ajax.php?action=kra_etims_refund_order&order_id=' . $order_id), 'kra_etims_refund_order'); ?>" 
+                   class="button button-secondary" 
+                   style="background-color: #d63638; border-color: #d63638; color: #fff;"
+                   onclick="return confirm('⚠️ Are you sure you want to process a refund for this order? This will send a refund request to the API with rcptTyCd=R, rfdRsnCd=06. This action cannot be undone.');">
+                    🔄 <?php _e('Process Refund', 'kra-etims-integration'); ?>
+                </a>
+            </p>
+            <?php 
+                elseif ($refund_status === 'success'):
+                    $refund_invoice_no = get_post_meta($order_id, '_custom_api_refund_invoice_no', true);
+                    $refund_submitted_at = get_post_meta($order_id, '_custom_api_refund_submitted_at', true);
+            ?>
+            <p>
+                <strong style="color: #d63638;"><?php _e('Refund Status:', 'kra-etims-integration'); ?></strong>
+                <span style="color: #00a32a;"><?php _e('Processed', 'kra-etims-integration'); ?></span>
+            </p>
+            <?php if ($refund_invoice_no): ?>
+            <p>
+                <strong><?php _e('Refund Invoice No:', 'kra-etims-integration'); ?></strong>
+                <?php echo esc_html($refund_invoice_no); ?>
+            </p>
+            <?php endif; ?>
+            <?php if ($refund_submitted_at): ?>
+            <p>
+                <strong><?php _e('Refund Processed at:', 'kra-etims-integration'); ?></strong>
+                <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($refund_submitted_at))); ?>
+            </p>
+            <?php endif; ?>
+            <?php 
+                endif;
+            endif; 
+            ?>
         </div>
         <?php
     }
@@ -452,6 +492,43 @@ class KRA_eTims_WC {
                 <?php endif; ?>
                 <br><small style="color: <?php echo $disabled ? '#999' : '#666'; ?>;"><?php echo $message; ?></small>
             </p>
+            
+            <?php 
+            // Show refund button only to admins and if order was successfully submitted
+            if (current_user_can('manage_options') && $custom_api_status === 'success'):
+                $refund_status = get_post_meta($order_id, '_custom_api_refund_status', true);
+                if ($refund_status !== 'success'):
+            ?>
+            <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                <a href="<?php echo wp_nonce_url(admin_url('admin-ajax.php?action=kra_etims_refund_order&order_id=' . $order_id), 'kra_etims_refund_order'); ?>" 
+                   class="button button-secondary" 
+                   style="background-color: #d63638; border-color: #d63638; color: #fff;"
+                   onclick="return confirm('⚠️ Are you sure you want to process a refund for this order? This will send a refund request to the API with rcptTyCd=R, rfdRsnCd=06. This action cannot be undone.');">
+                    🔄 <?php _e('Process Refund', 'kra-etims-integration'); ?>
+                </a>
+                <br><small style="color: #666;"><?php _e('Admin only: Send refund request to API', 'kra-etims-integration'); ?></small>
+            </p>
+            <?php 
+                elseif ($refund_status === 'success'):
+                    $refund_invoice_no = get_post_meta($order_id, '_custom_api_refund_invoice_no', true);
+                    $refund_submitted_at = get_post_meta($order_id, '_custom_api_refund_submitted_at', true);
+            ?>
+            <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                <strong style="color: #d63638;"><?php _e('Refund Status:', 'kra-etims-integration'); ?></strong>
+                <span style="color: #00a32a;"><?php _e('Processed', 'kra-etims-integration'); ?></span>
+                <?php if ($refund_invoice_no): ?>
+                <br><strong><?php _e('Refund Invoice No:', 'kra-etims-integration'); ?></strong>
+                <?php echo esc_html($refund_invoice_no); ?>
+                <?php endif; ?>
+                <?php if ($refund_submitted_at): ?>
+                <br><strong><?php _e('Refund Processed at:', 'kra-etims-integration'); ?></strong>
+                <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($refund_submitted_at))); ?>
+                <?php endif; ?>
+            </p>
+            <?php 
+                endif;
+            endif; 
+            ?>
         </div>
         <?php
     }

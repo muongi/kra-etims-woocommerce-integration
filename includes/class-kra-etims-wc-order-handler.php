@@ -618,4 +618,121 @@ class KRA_eTims_WC_Order_Handler {
         
         return $receipt_details;
     }
+
+    /**
+     * Process refund
+     *
+     * @param int $order_id Order ID
+     * @return array Result
+     */
+    public function process_refund($order_id) {
+        // Check if user is admin
+        if (!current_user_can('manage_options')) {
+            return array(
+                'success' => false,
+                'message' => __('Insufficient permissions. Only administrators can process refunds.', 'kra-etims-integration')
+            );
+        }
+        
+        // Get order
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return array(
+                'success' => false,
+                'message' => __('Order not found.', 'kra-etims-integration')
+            );
+        }
+        
+        // Check if original order was submitted successfully
+        $custom_api_status = get_post_meta($order_id, '_custom_api_status', true);
+        if ($custom_api_status !== 'success') {
+            return array(
+                'success' => false,
+                'message' => __('Original order must be submitted successfully before processing refund.', 'kra-etims-integration')
+            );
+        }
+        
+        // Check if refund has already been processed
+        $refund_status = get_post_meta($order_id, '_custom_api_refund_status', true);
+        if ($refund_status === 'success') {
+            return array(
+                'success' => false,
+                'message' => __('Refund already processed for this order.', 'kra-etims-integration')
+            );
+        }
+        
+        try {
+            // Prepare refund data (similar to receipt data but with refund-specific changes)
+            $refund_data = $this->prepare_refund_data($order);
+            
+            // Send to custom API
+            $custom_response = $this->api->send_to_custom_api($refund_data);
+            
+            // Process API response
+            $receipt_details = $this->process_api_response($custom_response);
+            
+            // Update order meta
+            update_post_meta($order_id, '_custom_api_refund_status', 'success');
+            update_post_meta($order_id, '_custom_api_refund_invoice_no', $refund_data['invcNo']);
+            update_post_meta($order_id, '_custom_api_refund_submitted_at', current_time('mysql'));
+            update_post_meta($order_id, '_custom_api_refund_response', $custom_response);
+            
+            // Add order note
+            $note = __('Refund processed and submitted to custom API.', 'kra-etims-integration');
+            if ($receipt_details) {
+                $note .= "\n\n" . __('Refund Transaction Details:', 'kra-etims-integration');
+                $note .= "\n- " . __('Receipt Number:', 'kra-etims-integration') . ' ' . $receipt_details['rcptNo'];
+                $note .= "\n- " . __('Receipt Signature:', 'kra-etims-integration') . ' ' . $receipt_details['rcptSign'];
+            }
+            $order->add_order_note($note);
+            
+            // Prepare success message
+            $success_message = __('Refund successfully submitted to custom API.', 'kra-etims-integration');
+            
+            return array(
+                'success' => true,
+                'message' => $success_message
+            );
+        } catch (Exception $e) {
+            // Update order meta
+            update_post_meta($order_id, '_custom_api_refund_status', 'failed');
+            update_post_meta($order_id, '_custom_api_refund_error', $e->getMessage());
+            
+            // Add order note
+            $order->add_order_note(
+                __('Failed to process refund: ', 'kra-etims-integration') . 
+                $e->getMessage()
+            );
+            
+            return array(
+                'success' => false,
+                'message' => $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * Prepare refund data (modified receipt data for refund)
+     *
+     * @param WC_Order $order WooCommerce order
+     * @return array Refund data
+     */
+    private function prepare_refund_data($order) {
+        // Get the original receipt data
+        $receipt_data = $this->prepare_receipt_data($order);
+        
+        // Get current date and time in required format
+        $current_date = current_time('Ymd');
+        $current_time = current_time('His');
+        $current_datetime = $current_date . $current_time;
+        
+        // Modify specific fields for refund
+        $receipt_data['rcptTyCd'] = 'R'; // R for Refund (was 'S' for Sale)
+        $receipt_data['rfdRsnCd'] = '06'; // Refund reason code
+        $receipt_data['rfdDt'] = $current_datetime; // Refund date (format: YmdHis)
+        
+        // Keep all other fields the same (items, amounts, taxes, etc.)
+        
+        return $receipt_data;
+    }
 }

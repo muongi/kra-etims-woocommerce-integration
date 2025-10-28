@@ -36,6 +36,7 @@ class KRA_eTims_WC_Admin {
         
         // Add AJAX handlers
         add_action('wp_ajax_kra_etims_submit_order', array($this, 'ajax_submit_order'));
+        add_action('wp_ajax_kra_etims_refund_order', array($this, 'ajax_refund_order'));
         add_action('wp_ajax_kra_etims_get_customer_tin', array($this, 'ajax_get_customer_tin'));
         
         // Add admin notices
@@ -813,6 +814,55 @@ class KRA_eTims_WC_Admin {
     }
 
 
+
+    /**
+     * AJAX refund order
+     */
+    public function ajax_refund_order() {
+        // Check nonce
+        if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'kra_etims_refund_order')) {
+            wp_send_json_error(__('Security check failed.', 'kra-etims-integration'));
+        }
+        
+        // Check if user is admin
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(__('Insufficient permissions. Only administrators can process refunds.', 'kra-etims-integration'));
+        }
+        
+        // Check order ID
+        if (!isset($_GET['order_id'])) {
+            wp_send_json_error(__('Order ID is required.', 'kra-etims-integration'));
+        }
+        
+        try {
+            $order_id = intval($_GET['order_id']);
+            
+            // Check if order exists
+            $order = wc_get_order($order_id);
+            if (!$order) {
+                wp_send_json_error(__('Order not found.', 'kra-etims-integration'));
+            }
+            
+            $order_handler = new KRA_eTims_WC_Order_Handler();
+            $result = $order_handler->process_refund($order_id);
+            
+            if ($result['success']) {
+                wp_send_json_success(array(
+                    'message' => $result['message'],
+                    'redirect_url' => add_query_arg(array(
+                        'post' => $order_id,
+                        'action' => 'edit',
+                        'kra_etims_refund_success' => 1
+                    ), admin_url('post.php'))
+                ));
+            } else {
+                wp_send_json_error($result['message']);
+            }
+            
+        } catch (Exception $e) {
+            wp_send_json_error('Error processing refund: ' . $e->getMessage());
+        }
+    }
 
     /**
      * AJAX get customer TIN data
