@@ -417,11 +417,27 @@ class KRA_eTims_WC_Product_Handler {
         $tin = isset($this->settings['tin']) ? $this->settings['tin'] : '';
         $bhfId = isset($this->settings['bhfId']) ? $this->settings['bhfId'] : '00';
         
+        // Get product price - use default of 1 if not available
+        $product_price = $product->get_regular_price();
+        if (empty($product_price) || $product_price <= 0) {
+            // Try sale price if regular price is empty
+            $product_price = $product->get_sale_price();
+            if (empty($product_price) || $product_price <= 0) {
+                // Try base price
+                $product_price = $product->get_price();
+                if (empty($product_price) || $product_price <= 0) {
+                    // Default to 1 if no price is available
+                    $product_price = 1;
+                    error_log('KRA eTims Product Handler: Product ' . $product->get_id() . ' has no price, using default of 1');
+                }
+            }
+        }
+        
         // Prepare product data
         $product_data = array(
             'product_name' => $product->get_name(),
             'unspec' => $unspec ?: '4111460100', // Default if not set
-            'price' => $product->get_regular_price(),
+            'price' => floatval($product_price), // Ensure it's a number, default to 1 if empty
             'taxid' => $taxid ?: 'B', // Default to VAT (16%)
             'tin' => $tin,
             'category_id' => $category_sid ?: '324', // Use category SID instead of hardcoded ID
