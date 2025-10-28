@@ -74,6 +74,9 @@ class KRA_eTims_WC {
         // Initialize tax handler
         KRA_eTims_WC_Tax_Handler::get_instance();
         
+        // Initialize bulk tax updater
+        KRA_eTims_WC_Bulk_Tax_Updater::get_instance();
+        
         // Initialize sync class
         new KRA_eTims_WC_Sync();
     }
@@ -102,6 +105,9 @@ class KRA_eTims_WC {
         
         // Include tax handler class
         require_once KRA_ETIMS_WC_PLUGIN_DIR . 'includes/class-kra-etims-wc-tax-handler.php';
+        
+        // Include bulk tax updater class
+        require_once KRA_ETIMS_WC_PLUGIN_DIR . 'includes/class-kra-etims-wc-bulk-tax-updater.php';
         
         // Include category handler class
         require_once KRA_ETIMS_WC_PLUGIN_DIR . 'includes/class-kra-etims-wc-category-handler.php';
