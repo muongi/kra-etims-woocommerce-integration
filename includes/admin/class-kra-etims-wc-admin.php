@@ -847,20 +847,37 @@ class KRA_eTims_WC_Admin {
             $result = $order_handler->process_refund($order_id);
             
             if ($result['success']) {
-                wp_send_json_success(array(
-                    'message' => $result['message'],
-                    'redirect_url' => add_query_arg(array(
-                        'post' => $order_id,
-                        'action' => 'edit',
-                        'kra_etims_refund_success' => 1
-                    ), admin_url('post.php'))
-                ));
+                // Redirect back to order page with success message
+                $redirect_url = add_query_arg(array(
+                    'post' => $order_id,
+                    'action' => 'edit',
+                    'kra_etims_refund_success' => 1
+                ), admin_url('post.php'));
+                
+                wp_redirect($redirect_url);
+                exit;
             } else {
-                wp_send_json_error($result['message']);
+                // Redirect back to order page with error message
+                $redirect_url = add_query_arg(array(
+                    'post' => $order_id,
+                    'action' => 'edit',
+                    'kra_etims_refund_error' => urlencode($result['message'])
+                ), admin_url('post.php'));
+                
+                wp_redirect($redirect_url);
+                exit;
             }
             
         } catch (Exception $e) {
-            wp_send_json_error('Error processing refund: ' . $e->getMessage());
+            // Redirect back to order page with error message
+            $redirect_url = add_query_arg(array(
+                'post' => $order_id,
+                'action' => 'edit',
+                'kra_etims_refund_error' => urlencode('Error processing refund: ' . $e->getMessage())
+            ), admin_url('post.php'));
+            
+            wp_redirect($redirect_url);
+            exit;
         }
     }
 
@@ -986,6 +1003,34 @@ class KRA_eTims_WC_Admin {
             ?>
             <div class="notice notice-error is-dismissible">
                 <p><?php echo esc_html(urldecode($_GET['kra_etims_error'])); ?></p>
+            </div>
+            <?php
+        }
+        
+        // Refund success notice
+        if (isset($_GET['kra_etims_refund_success'])) {
+            $refund_invoice_no = get_post_meta($post->ID, '_custom_api_refund_invoice_no', true);
+            $refund_submitted_at = get_post_meta($post->ID, '_custom_api_refund_submitted_at', true);
+            ?>
+            <div class="notice notice-success is-dismissible">
+                <h3 style="margin-top: 0;">✅ Refund Successfully Processed</h3>
+                <p><?php _e('The refund has been successfully submitted to the custom API.', 'kra-etims-integration'); ?></p>
+                <?php if ($refund_invoice_no): ?>
+                <p><strong><?php _e('Refund Invoice No:', 'kra-etims-integration'); ?></strong> <code><?php echo esc_html($refund_invoice_no); ?></code></p>
+                <?php endif; ?>
+                <?php if ($refund_submitted_at): ?>
+                <p><strong><?php _e('Processed at:', 'kra-etims-integration'); ?></strong> <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($refund_submitted_at))); ?></p>
+                <?php endif; ?>
+            </div>
+            <?php
+        }
+        
+        // Refund error notice
+        if (isset($_GET['kra_etims_refund_error'])) {
+            ?>
+            <div class="notice notice-error is-dismissible">
+                <h3 style="margin-top: 0;">❌ Refund Processing Failed</h3>
+                <p><?php echo esc_html(urldecode($_GET['kra_etims_refund_error'])); ?></p>
             </div>
             <?php
         }
