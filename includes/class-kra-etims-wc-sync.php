@@ -812,13 +812,23 @@ class KRA_eTims_WC_Sync {
                 continue; // Skip and continue to next product
             }
             
-            // Send product to API
+            // Send product to API using product handler (which uses /update_items endpoint)
             try {
-            $result = $this->send_product_to_api($product, $primary_category);
-            
-            if ($result['success']) {
-                $synced_count++;
-            } else {
+                // Ensure product has required meta before syncing
+                update_post_meta($product_id, '_injonge_unspec', $unspec_code);
+                update_post_meta($product_id, '_injonge_category_sid', $server_id);
+                
+                // Use product handler to sync (uses /update_items endpoint and saves injonge code)
+                $product_handler = new KRA_eTims_WC_Product_Handler();
+                $result = $product_handler->send_product_to_api($product, 'create');
+                
+                if ($result['success']) {
+                    $synced_count++;
+                    // Log success with injonge code if available
+                    if (isset($result['injonge_code'])) {
+                        error_log("KRA eTims Sync: Product '{$product->get_name()}' synced successfully with Injonge Code: {$result['injonge_code']}");
+                    }
+                } else {
                     $failed_count++;
                     $error_msg = !empty($result['message']) ? $result['message'] : 'Unknown API error';
                     $errors[] = "'{$product->get_name()}': {$error_msg}";
@@ -960,50 +970,16 @@ class KRA_eTims_WC_Sync {
     }
     
     /**
-     * Send product to API
+     * Send product to API (DEPRECATED - Now uses Product Handler)
+     * Kept for backward compatibility but should use Product Handler instead
+     * 
+     * @deprecated Use KRA_eTims_WC_Product_Handler::send_product_to_api() instead
      */
     private function send_product_to_api($product, $category) {
-        $settings = get_option('kra_etims_wc_settings');
-        $api_url = isset($settings['custom_api_live_url']) ? $settings['custom_api_live_url'] : '';
-        
-        if (empty($api_url)) {
-            return array('success' => false, 'message' => 'API URL not configured');
-        }
-        
-                    $unspec_code = get_term_meta($category->term_id, '_kra_etims_unspec_code', true);
-        $server_id = get_term_meta($category->term_id, '_kra_etims_server_id', true);
-        
-        $product_data = array(
-            'name' => $product->get_name(),
-            'sku' => $product->get_sku(),
-            'price' => $product->get_price(),
-            'category_id' => $server_id,
-            'unspec_code' => $unspec_code,
-            'description' => $product->get_description(),
-            'short_description' => $product->get_short_description(),
-            'status' => $product->get_status()
-        );
-        
-        $response = wp_remote_post($api_url . '/add_products', array(
-            'headers' => array(
-                'Content-Type' => 'application/json',
-            ),
-            'body' => json_encode($product_data),
-            'timeout' => 30,
-        ));
-        
-        if (is_wp_error($response)) {
-            return array('success' => false, 'message' => $response->get_error_message());
-        }
-        
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
-        
-        if (isset($data['success']) && $data['success']) {
-            return array('success' => true, 'message' => 'Product synced successfully');
-        } else {
-            return array('success' => false, 'message' => isset($data['message']) ? $data['message'] : 'Unknown error');
-        }
+        // This method is deprecated - use product handler instead
+        // Keeping for backward compatibility but redirecting to product handler
+        $product_handler = new KRA_eTims_WC_Product_Handler();
+        return $product_handler->send_product_to_api($product, 'create');
     }
     
     /**

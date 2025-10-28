@@ -260,34 +260,96 @@ class KRA_eTims_WC_Product_Handler {
             // Send to API
             $response = $this->api->send_product_to_api($product_data, $action);
             
-            // Process response
-            if ($response && isset($response['injongecode'])) {
+            // Process response - handle multiple possible response formats
+            $injonge_code = null;
+            $sid = null;
+            
+            // Try different possible field names for injonge code
+            if ($response && is_array($response)) {
+                // Check direct response fields (different casing variations)
+                if (isset($response['injongecode'])) {
+                    $injonge_code = $response['injongecode'];
+                } elseif (isset($response['injonge_code'])) {
+                    $injonge_code = $response['injonge_code'];
+                } elseif (isset($response['injongeCode'])) {
+                    $injonge_code = $response['injongeCode'];
+                } elseif (isset($response['itemCode'])) {
+                    $injonge_code = $response['itemCode'];
+                } elseif (isset($response['item_code'])) {
+                    $injonge_code = $response['item_code'];
+                }
+                
+                // Check in nested data structure
+                if (empty($injonge_code) && isset($response['data']) && is_array($response['data'])) {
+                    $data = $response['data'];
+                    if (isset($data['injongecode'])) {
+                        $injonge_code = $data['injongecode'];
+                    } elseif (isset($data['injonge_code'])) {
+                        $injonge_code = $data['injonge_code'];
+                    } elseif (isset($data['injongeCode'])) {
+                        $injonge_code = $data['injongeCode'];
+                    } elseif (isset($data['itemCode'])) {
+                        $injonge_code = $data['itemCode'];
+                    } elseif (isset($data['item_code'])) {
+                        $injonge_code = $data['item_code'];
+                    }
+                }
+                
+                // Get SID (try different field names)
+                if (isset($response['sid'])) {
+                    $sid = $response['sid'];
+                } elseif (isset($response['id'])) {
+                    $sid = $response['id'];
+                } elseif (isset($response['SID'])) {
+                    $sid = $response['SID'];
+                } elseif (isset($response['data']['sid'])) {
+                    $sid = $response['data']['sid'];
+                } elseif (isset($response['data']['id'])) {
+                    $sid = $response['data']['id'];
+                }
+            }
+            
+            // If injonge code found, save it
+            if (!empty($injonge_code)) {
                 // Save injonge code
-                update_post_meta($product->get_id(), '_injonge_code', $response['injongecode']);
-                update_post_meta($product->get_id(), '_injonge_sid', $response['sid']);
+                update_post_meta($product->get_id(), '_injonge_code', sanitize_text_field($injonge_code));
+                
+                // Save SID if available
+                if (!empty($sid)) {
+                    update_post_meta($product->get_id(), '_injonge_sid', sanitize_text_field($sid));
+                }
+                
+                // Save status and response
                 update_post_meta($product->get_id(), '_injonge_status', 'success');
                 update_post_meta($product->get_id(), '_injonge_response', $response);
                 update_post_meta($product->get_id(), '_injonge_last_sync', current_time('mysql'));
                 
                 // Add product note
-                $note = sprintf(
-                    __('Product successfully %s to API. Injonge Code: %s, SID: %s', 'kra-etims-integration'),
-                    $action === 'create' ? 'sent' : 'updated',
-                    $response['injongecode'],
-                    $response['sid']
+                $note_parts = array(
+                    sprintf(__('Product successfully %s to API.', 'kra-etims-integration'), $action === 'create' ? 'sent' : 'updated'),
+                    sprintf(__('Injonge Code: %s', 'kra-etims-integration'), $injonge_code)
                 );
                 
-                $product->add_meta_data('_api_note', $note);
-                $product->save_meta_data();
+                if (!empty($sid)) {
+                    $note_parts[] = sprintf(__('SID: %s', 'kra-etims-integration'), $sid);
+                }
+                
+                $note = implode(' ', $note_parts);
+                update_post_meta($product->get_id(), '_api_note', $note);
+                
+                // Log success
+                error_log('KRA eTims Product Handler: Product ' . $product->get_id() . ' (' . $product->get_name() . ') synced successfully. Injonge Code: ' . $injonge_code);
                 
                 return array(
                     'success' => true,
                     'message' => $note,
-                    'injonge_code' => $response['injongecode'],
-                    'sid' => $response['sid']
+                    'injonge_code' => $injonge_code,
+                    'sid' => $sid
                 );
             } else {
-                throw new Exception('Invalid API response: Missing injonge_code');
+                // Log the response for debugging
+                error_log('KRA eTims Product Handler: Invalid API response - Missing injonge_code. Response: ' . json_encode($response));
+                throw new Exception('Invalid API response: Missing injonge_code. Response structure: ' . json_encode($response));
             }
             
         } catch (Exception $e) {
