@@ -807,6 +807,7 @@ class KRA_eTims_WC_Sync {
         
         $synced_count = 0;
         $skipped_count = 0;
+        $already_synced_count = 0;
         $failed_count = 0;
         $errors = array();
         
@@ -820,12 +821,20 @@ class KRA_eTims_WC_Sync {
             }
             
             $primary_category = $categories[0];
-                            $unspec_code = get_term_meta($primary_category->term_id, '_kra_etims_unspec_code', true);
+            $unspec_code = get_term_meta($primary_category->term_id, '_kra_etims_unspec_code', true);
             $server_id = get_term_meta($primary_category->term_id, '_kra_etims_server_id', true);
             
             if (empty($unspec_code) || empty($server_id)) {
                 $skipped_count++;
                 continue; // Skip and continue to next product
+            }
+            
+            // Check if product already has an injonge code - skip if it does
+            $existing_injonge_code = get_post_meta($product_id, '_injonge_code', true);
+            if (!empty($existing_injonge_code)) {
+                $already_synced_count++;
+                error_log("KRA eTims Sync: Skipping product '{$product->get_name()}' - already has Injonge Code: {$existing_injonge_code}");
+                continue; // Skip products that already have an injonge code
             }
             
             // Send product to API using product handler (which uses /update_items endpoint)
@@ -859,6 +868,10 @@ class KRA_eTims_WC_Sync {
         
         // Build success message
         $message = "Sync completed: {$synced_count} successful";
+        
+        if ($already_synced_count > 0) {
+            $message .= ", {$already_synced_count} skipped (already have injonge code)";
+        }
         
         if ($skipped_count > 0) {
             $message .= ", {$skipped_count} skipped (no category/SID)";
