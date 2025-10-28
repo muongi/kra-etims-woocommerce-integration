@@ -442,15 +442,34 @@ class KRA_eTims_WC_Tax_Handler {
         $product_id = $item->get_product_id();
         $quantity = $item->get_quantity();
         
-        // Get totals from WooCommerce
-        $line_total = $item->get_total(); // Total with tax included
-        $line_tax = $item->get_total_tax(); // Tax amount
-        $line_subtotal = $item->get_subtotal(); // Subtotal without tax
-        
         // Get KRA tax type
         $kra_tax_type = get_post_meta($product_id, '_injonge_taxid', true);
         if (empty($kra_tax_type)) {
             $kra_tax_type = 'B'; // Default to VAT
+        }
+        
+        // Get tax rate for this tax type
+        $tax_rate = $this->get_tax_rate_for_type($kra_tax_type);
+        
+        // Get totals from WooCommerce - prices are tax-inclusive
+        $line_total = $item->get_total(); // Total including tax (tax-inclusive price)
+        $line_tax_woo = $item->get_total_tax(); // WooCommerce calculated tax
+        
+        // Check if prices are tax-inclusive
+        $prices_include_tax = get_option('woocommerce_prices_include_tax') === 'yes';
+        
+        // For tax-inclusive pricing, manually calculate tax for proper API reporting
+        if ($prices_include_tax && $line_total > 0) {
+            // Calculate tax amount from tax-inclusive price
+            // Formula: Tax = Total * (TaxRate / (100 + TaxRate))
+            // For 16% VAT: Tax = 569 * (16 / 116) = 78.48
+            $line_tax = ($line_total * $tax_rate) / (100 + $tax_rate);
+            $line_subtotal = $line_total - $line_tax; // Taxable amount (without tax)
+        } else {
+            // Prices exclude tax (standard WooCommerce calculation)
+            $line_subtotal = $item->get_subtotal(); // Subtotal without tax
+            $line_tax = $line_tax_woo > 0 ? $line_tax_woo : ($line_subtotal * $tax_rate / 100);
+            $line_total = $line_subtotal + $line_tax; // Total with tax
         }
         
         // Calculate per-unit values
@@ -466,9 +485,26 @@ class KRA_eTims_WC_Tax_Handler {
             'unit_price_with_tax' => round($unit_price_with_tax, 2),
             'unit_tax' => round($unit_tax, 2),
             'unit_price_without_tax' => round($unit_price_without_tax, 2),
-            'taxable_amount' => round($line_subtotal, 2),
-            'tax_amount' => round($line_tax, 2)
+            'taxable_amount' => round($line_subtotal, 2), // Amount without tax (for API)
+            'tax_amount' => round($line_tax, 2) // Tax amount (for API)
         );
+    }
+    
+    /**
+     * Get tax rate for KRA tax type
+     *
+     * @param string $tax_type KRA tax type (A, B, C, D)
+     * @return float Tax rate percentage
+     */
+    private function get_tax_rate_for_type($tax_type) {
+        $tax_rates = array(
+            'A' => 0,   // Exempt
+            'B' => 16,  // VAT
+            'C' => 0,   // Export
+            'D' => 0    // Non-VAT
+        );
+        
+        return isset($tax_rates[$tax_type]) ? $tax_rates[$tax_type] : 16; // Default to 16%
     }
 }
 
