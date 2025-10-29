@@ -60,31 +60,19 @@ class KRA_eTims_WC_API {
     /**
      * Set API environment
      * 
-     * Sets the API base URL based on the selected environment (development or production)
+     * Sets the API base URL to production by default
      */
     private function set_api_environment() {
-        $environment = isset($this->settings['environment']) ? $this->settings['environment'] : 'development';
-        
-        if ($environment === 'production') {
-            $this->api_base_url = 'https://etims-api.kra.go.ke/etims-api';
-        } else {
-            $this->api_base_url = 'https://etims-api-sbx.kra.go.ke';
-        }
+        $this->api_base_url = 'https://etims-api.kra.go.ke/etims-api';
     }
 
     /**
      * Set custom API URL
      * 
-     * Sets the custom API URL based on the selected environment
+     * Sets the custom API URL from settings
      */
     private function set_custom_api_url() {
-        $environment = isset($this->settings['environment']) ? $this->settings['environment'] : 'development';
-        
-        if ($environment === 'production') {
-            $this->custom_api_url = isset($this->settings['custom_api_live_url']) ? $this->settings['custom_api_live_url'] : 'http://your-production-api.com/injongeReceipts';
-        } else {
-            $this->custom_api_url = isset($this->settings['custom_api_live_url']) ? $this->settings['custom_api_live_url'] : 'http://your-production-api.com/injongeReceipts';
-        }
+        $this->custom_api_url = isset($this->settings['custom_api_live_url']) ? $this->settings['custom_api_live_url'] : 'http://your-production-api.com/injongeReceipts';
         
         // Don't enforce HTTPS - let user choose HTTP or HTTPS
         // Remove any protocol enforcement logic
@@ -385,8 +373,7 @@ class KRA_eTims_WC_API {
             // Make a test request
             $test_data = array(
                 'test' => true,
-                'timestamp' => current_time('timestamp'),
-                'environment' => isset($this->settings['environment']) ? $this->settings['environment'] : 'development'
+                'timestamp' => current_time('timestamp')
             );
             
             $response = $this->make_custom_request($test_data);

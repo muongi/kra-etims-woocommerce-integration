@@ -139,14 +139,6 @@ class KRA_eTims_WC_Admin {
         );
         
         add_settings_field(
-            'kra_etims_wc_environment',
-            __('Environment', 'kra-etims-integration'),
-            array($this, 'render_environment_field'),
-            'kra_etims_wc_settings',
-            'kra_etims_wc_api'
-        );
-        
-        add_settings_field(
             'kra_etims_wc_auto_submit',
             __('Auto Submit', 'kra-etims-integration'),
             array($this, 'render_auto_submit_field'),
@@ -471,80 +463,6 @@ class KRA_eTims_WC_Admin {
     }
 
     /**
-     * Render environment field
-     */
-    public function render_environment_field() {
-        $settings = get_option('kra_etims_wc_settings');
-        $value = isset($settings['environment']) ? $settings['environment'] : 'development';
-        ?>
-        <div class="kra-etims-environment-selector">
-            <label class="environment-option <?php echo $value === 'development' ? 'selected' : ''; ?>">
-                <input type="radio" name="kra_etims_wc_settings[environment]" value="development" <?php checked($value, 'development'); ?> />
-                <span class="environment-label">
-                    <span class="dashicons dashicons-admin-tools"></span>
-                    <?php _e('Development / Sandbox', 'kra-etims-integration'); ?>
-                </span>
-                <span class="environment-description">
-                    <?php _e('Use for development. Connects to your Development API endpoint.', 'kra-etims-integration'); ?>
-                </span>
-            </label>
-            
-            <label class="environment-option <?php echo $value === 'production' ? 'selected' : ''; ?>">
-                <input type="radio" name="kra_etims_wc_settings[environment]" value="production" <?php checked($value, 'production'); ?> />
-                <span class="environment-label">
-                    <span class="dashicons dashicons-warning"></span>
-                    <?php _e('Production', 'kra-etims-integration'); ?>
-                </span>
-                <span class="environment-description">
-                    <?php _e('Use for live transactions. Connects to your Production API endpoint.', 'kra-etims-integration'); ?>
-                </span>
-            </label>
-        </div>
-        <p class="description"><?php _e('Select the environment to use. Always configure in Development first before switching to Production.', 'kra-etims-integration'); ?></p>
-        <style>
-            .kra-etims-environment-selector {
-                display: flex;
-                gap: 15px;
-                margin-bottom: 10px;
-            }
-            .environment-option {
-                flex: 1;
-                border: 2px solid #ccc;
-                border-radius: 5px;
-                padding: 15px;
-                cursor: pointer;
-                display: flex;
-                flex-direction: column;
-                transition: all 0.3s ease;
-            }
-            .environment-option.selected {
-                border-color: #2271b1;
-                background-color: #f0f6fc;
-            }
-            .environment-option:hover {
-                border-color: #2271b1;
-            }
-            .environment-option input[type="radio"] {
-                margin-right: 10px;
-            }
-            .environment-label {
-                font-weight: bold;
-                display: flex;
-                align-items: center;
-                margin-bottom: 5px;
-            }
-            .environment-label .dashicons {
-                margin-right: 8px;
-            }
-            .environment-description {
-                color: #646970;
-                font-size: 13px;
-            }
-        </style>
-        <?php
-    }
-
-    /**
      * Render auto submit field
      */
     public function render_auto_submit_field() {
@@ -607,23 +525,12 @@ class KRA_eTims_WC_Admin {
      */
     public function render_current_endpoint_field() {
         $settings = get_option('kra_etims_wc_settings');
-        $environment = isset($settings['environment']) ? $settings['environment'] : 'development';
-        
-        if ($environment === 'production') {
-            $current_url = isset($settings['custom_api_live_url']) ? $settings['custom_api_live_url'] : 'https://your-production-api.com/injongeReceipts';
-            $status_class = 'production';
-            $status_text = __('Production', 'kra-etims-integration');
-        } else {
-            $current_url = isset($settings['custom_api_live_url']) ? $settings['custom_api_live_url'] : 'https://your-production-api.com/injongeReceipts';
-            $status_class = 'development';
-            $status_text = __('Development', 'kra-etims-integration');
-        }
+        $current_url = isset($settings['custom_api_live_url']) ? $settings['custom_api_live_url'] : 'https://your-production-api.com/injongeReceipts';
         ?>
         <div class="current-endpoint-display">
-            <span class="endpoint-status <?php echo $status_class; ?>"><?php echo $status_text; ?></span>
             <code class="endpoint-url"><?php echo esc_html($current_url); ?></code>
         </div>
-        <p class="description"><?php _e('This is the API endpoint that will be used based on your current environment setting.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('This is the API endpoint that will be used for sending receipt data.', 'kra-etims-integration'); ?></p>
         <style>
             .current-endpoint-display {
                 background: #f9f9f9;
@@ -631,23 +538,6 @@ class KRA_eTims_WC_Admin {
                 padding: 10px;
                 border-radius: 4px;
                 margin: 5px 0;
-            }
-            .endpoint-status {
-                display: inline-block;
-                padding: 2px 8px;
-                border-radius: 3px;
-                font-size: 11px;
-                font-weight: bold;
-                text-transform: uppercase;
-                margin-right: 10px;
-            }
-            .endpoint-status.development {
-                background: #0073aa;
-                color: white;
-            }
-            .endpoint-status.production {
-                background: #d63638;
-                color: white;
             }
             .endpoint-url {
                 font-family: monospace;
@@ -728,11 +618,6 @@ class KRA_eTims_WC_Admin {
         
         if (isset($input['device_serial'])) {
             $sanitized['device_serial'] = sanitize_text_field($input['device_serial']);
-        }
-        
-        // Sanitize select fields
-        if (isset($input['environment'])) {
-            $sanitized['environment'] = sanitize_text_field($input['environment']);
         }
         
         // Sanitize checkbox fields
