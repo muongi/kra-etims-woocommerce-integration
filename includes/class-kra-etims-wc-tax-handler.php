@@ -57,12 +57,8 @@ class KRA_eTims_WC_Tax_Handler {
         add_action('woocommerce_cart_loaded_from_session', array($this, 'ensure_tax_settings'));
         add_action('wp_loaded', array($this, 'ensure_tax_settings'));
         
-        // Force tax-inclusive display in cart
-        add_filter('woocommerce_cart_item_price', array($this, 'force_tax_inclusive_price_display'), 10, 3);
-        add_filter('woocommerce_cart_item_subtotal', array($this, 'force_tax_inclusive_subtotal_display'), 10, 3);
-        
-        // Override WooCommerce cart display methods to always show tax-inclusive
-        add_filter('woocommerce_cart_subtotal', array($this, 'force_cart_subtotal_incl_tax'), 10, 1);
+        // Removed problematic filters that were adding tax on top of tax-inclusive prices
+        // WooCommerce handles tax-inclusive display natively when settings are correct
         
         // Add tax class field to product edit page
         add_action('woocommerce_product_options_tax', array($this, 'add_kra_tax_type_field'));
