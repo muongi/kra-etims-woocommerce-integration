@@ -207,24 +207,30 @@ class KRA_eTims_WC_Order_Handler {
             );
         }
         
-        // Add shipping as an item if applicable
-        $shipping_total = $order->get_shipping_total();
-        if ($shipping_total > 0) {
-            // Calculate shipping tax as 16% of shipping price
-            $shipping_tax = round($shipping_total * 0.16, 2);
-            $tax_type_code = 'V'; // V for VAT
-            
-            $items[] = array(
-                'itemCd' => 'SHIPPING',
-                'itemNm' => __('Shipping', 'kra-etims-integration'),
-                'qty' => 1,
-                'prc' => $shipping_total,
-                'splyAmt' => $shipping_total,
-                'dcRt' => 0,
-                'dcAmt' => 0,
-                'taxTyCd' => $tax_type_code,
-                'taxAmt' => $shipping_tax
-            );
+        // Check if shipping should be included
+        $settings = get_option('kra_etims_wc_settings');
+        $include_shipping = isset($settings['include_shipping']) ? $settings['include_shipping'] : 'yes';
+        
+        // Add shipping as an item if applicable and if enabled in settings
+        if ($include_shipping === 'yes') {
+            $shipping_total = $order->get_shipping_total();
+            if ($shipping_total > 0) {
+                // Calculate shipping tax as 16% of shipping price
+                $shipping_tax = round($shipping_total * 0.16, 2);
+                $tax_type_code = 'V'; // V for VAT
+                
+                $items[] = array(
+                    'itemCd' => 'SHIPPING',
+                    'itemNm' => __('Shipping', 'kra-etims-integration'),
+                    'qty' => 1,
+                    'prc' => $shipping_total,
+                    'splyAmt' => $shipping_total,
+                    'dcRt' => 0,
+                    'dcAmt' => 0,
+                    'taxTyCd' => $tax_type_code,
+                    'taxAmt' => $shipping_tax
+                );
+            }
         }
         
         // Prepare sales data
@@ -467,48 +473,53 @@ class KRA_eTims_WC_Order_Handler {
             $item_seq++;
         }
         
-        // Add shipping as an item if applicable
-        $shipping_total = $order->get_shipping_total();
-        $shipping_tax = $order->get_shipping_tax();
+        // Check if shipping should be included (from settings)
+        $include_shipping = isset($settings['include_shipping']) ? $settings['include_shipping'] : 'yes';
         
-        if ($shipping_total > 0 || $shipping_tax > 0) {
-            // Set shipping price to 0 if not available
-            if (empty($shipping_total) || $shipping_total <= 0) {
-                $shipping_total = 0;
+        // Add shipping as an item if applicable and if enabled in settings
+        if ($include_shipping === 'yes') {
+            $shipping_total = $order->get_shipping_total();
+            $shipping_tax = $order->get_shipping_tax();
+            
+            if ($shipping_total > 0 || $shipping_tax > 0) {
+                // Set shipping price to 0 if not available
+                if (empty($shipping_total) || $shipping_total <= 0) {
+                    $shipping_total = 0;
+                }
+                
+                // Calculate shipping amounts (tax-inclusive)
+                $shipping_with_tax = $shipping_total + $shipping_tax;
+                $shipping_taxable = $shipping_total; // Amount without tax
+                
+                // Shipping is typically Tax B (16% VAT)
+                $total_taxable_amount_b += $shipping_taxable;
+                $total_tax_amount_b += $shipping_tax;
+                $total_amount += $shipping_with_tax;
+                
+                $item_list[] = array(
+                    'itemSeq' => $item_seq,
+                    'itemClsCd' => '3120150700', // Shipping classification code
+                    'itemCd' => 'SHIPPING',
+                    'itemNm' => 'Shipping',
+                    'bcd' => 'null',
+                    'pkgUnitCd' => 'NT',
+                    'pkg' => 1,
+                    'prc' => round($shipping_with_tax, 0),
+                    'qty' => 1,
+                    'splyAmt' => round($shipping_with_tax, 0),
+                    'dcRt' => '0.00',
+                    'dcAmt' => '0.00',
+                    'isrccCd' => null,
+                    'isrccNm' => null,
+                    'isrcRt' => null,
+                    'isrcAmt' => null,
+                    'taxTyCd' => 'B', // Shipping is always Tax B
+                    'taxAmt' => round($shipping_tax, 2),
+                    'taxblAmt' => round($shipping_taxable, 2),
+                    'totAmt' => round($shipping_with_tax, 0),
+                    'qtyUnitCd' => 'U'
+                );
             }
-            
-            // Calculate shipping amounts (tax-inclusive)
-            $shipping_with_tax = $shipping_total + $shipping_tax;
-            $shipping_taxable = $shipping_total; // Amount without tax
-            
-            // Shipping is typically Tax B (16% VAT)
-            $total_taxable_amount_b += $shipping_taxable;
-            $total_tax_amount_b += $shipping_tax;
-            $total_amount += $shipping_with_tax;
-            
-            $item_list[] = array(
-                'itemSeq' => $item_seq,
-                'itemClsCd' => '3120150700', // Shipping classification code
-                'itemCd' => 'SHIPPING',
-                'itemNm' => 'Shipping',
-                'bcd' => 'null',
-                'pkgUnitCd' => 'NT',
-                'pkg' => 1,
-                'prc' => round($shipping_with_tax, 0),
-                'qty' => 1,
-                'splyAmt' => round($shipping_with_tax, 0),
-                'dcRt' => '0.00',
-                'dcAmt' => '0.00',
-                'isrccCd' => null,
-                'isrccNm' => null,
-                'isrcRt' => null,
-                'isrcAmt' => null,
-                'taxTyCd' => 'B', // Shipping is always Tax B
-                'taxAmt' => round($shipping_tax, 2),
-                'taxblAmt' => round($shipping_taxable, 2),
-                'totAmt' => round($shipping_with_tax, 0),
-                'qtyUnitCd' => 'U'
-            );
         }
         
         // Calculate total taxable amounts

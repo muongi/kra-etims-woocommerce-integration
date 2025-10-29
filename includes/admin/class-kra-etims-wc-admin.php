@@ -149,6 +149,13 @@ class KRA_eTims_WC_Admin {
             'kra_etims_wc_general'
         );
         
+        add_settings_field(
+            'kra_etims_wc_include_shipping',
+            __('Include Shipping in KRA API', 'kra-etims-integration'),
+            array($this, 'render_include_shipping_field'),
+            'kra_etims_wc_settings',
+            'kra_etims_wc_general'
+        );
 
         
         // Custom API settings fields
@@ -528,6 +535,21 @@ class KRA_eTims_WC_Admin {
         <?php
     }
 
+    /**
+     * Render include shipping field
+     */
+    public function render_include_shipping_field() {
+        $settings = get_option('kra_etims_wc_settings');
+        $value = isset($settings['include_shipping']) ? $settings['include_shipping'] : 'yes';
+        ?>
+        <select name="kra_etims_wc_settings[include_shipping]">
+            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-integration'); ?></option>
+            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-integration'); ?></option>
+        </select>
+        <p class="description"><?php _e('Include shipping costs in the data sent to KRA eTIMS API. Set to "No" if you don\'t want shipping to be sent to KRA.', 'kra-etims-integration'); ?></p>
+        <?php
+    }
+
 
 
     /**
@@ -673,6 +695,7 @@ class KRA_eTims_WC_Admin {
         
         // Sanitize checkbox fields
         $sanitized['auto_submit'] = isset($input['auto_submit']) ? 'yes' : 'no';
+        $sanitized['include_shipping'] = isset($input['include_shipping']) ? $input['include_shipping'] : 'yes';
         
         // Sanitize custom API fields
         if (isset($input['custom_api_live_url'])) {
