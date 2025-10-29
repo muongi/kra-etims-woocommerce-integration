@@ -133,8 +133,9 @@ class KRA_eTims_WC {
         add_action('woocommerce_order_action_kra_etims_submit', array($this, 'process_order_action_submit'));
         
         // Add order meta box - use the correct hook for WooCommerce orders
-        add_action('add_meta_boxes', array($this, 'add_order_meta_box'), 10, 2);
-        add_action('woocommerce_admin_order_data_after_billing_address', array($this, 'add_order_meta_box_woocommerce'), 10, 1);
+        // Commented out to hide the KRA eTims Integration box on order page
+        // add_action('add_meta_boxes', array($this, 'add_order_meta_box'), 10, 2);
+        // add_action('woocommerce_admin_order_data_after_billing_address', array($this, 'add_order_meta_box_woocommerce'), 10, 1);
         
         // Add customer TIN field to checkout
         add_action('woocommerce_after_checkout_billing_form', array($this, 'add_customer_tin_field'));
@@ -150,6 +151,16 @@ class KRA_eTims_WC {
         // Add customer TIN field to account pages
         add_action('woocommerce_edit_account_form', array($this, 'add_account_tin_field'));
         add_action('woocommerce_save_account_details', array($this, 'save_account_tin_field'));
+        
+        // Add customer TIN field to admin user profile pages
+        add_action('show_user_profile', array($this, 'add_user_profile_tin_field'));
+        add_action('edit_user_profile', array($this, 'add_user_profile_tin_field'));
+        add_action('personal_options_update', array($this, 'save_user_profile_tin_field'));
+        add_action('edit_user_profile_update', array($this, 'save_user_profile_tin_field'));
+        
+        // Add customer TIN column to WooCommerce customers list
+        add_filter('manage_users_columns', array($this, 'add_customer_tin_column'));
+        add_filter('manage_users_custom_column', array($this, 'show_customer_tin_column'), 10, 3);
     }
 
     /**
@@ -734,5 +745,82 @@ class KRA_eTims_WC {
             
             update_user_meta($user_id, '_customer_tin', $customer_tin);
         }
+    }
+
+    /**
+     * Add customer TIN field to admin user profile
+     */
+    public function add_user_profile_tin_field($user) {
+        // Only show for customers and users with WooCommerce capabilities
+        if (!current_user_can('edit_users')) {
+            return;
+        }
+        
+        $customer_tin = get_user_meta($user->ID, '_customer_tin', true);
+        ?>
+        <h3><?php _e('KRA eTIMS Information', 'kra-etims-integration'); ?></h3>
+        <table class="form-table">
+            <tr>
+                <th>
+                    <label for="customer_tin"><?php _e('Customer TIN/PIN', 'kra-etims-integration'); ?></label>
+                </th>
+                <td>
+                    <input type="text" 
+                           name="customer_tin" 
+                           id="customer_tin" 
+                           value="<?php echo esc_attr($customer_tin); ?>" 
+                           class="regular-text" 
+                           maxlength="11" 
+                           pattern="[A-Za-z0-9]{0,11}" 
+                           placeholder="<?php _e('Enter 11-character tax identification number', 'kra-etims-integration'); ?>" />
+                    <p class="description">
+                        <?php _e('Customer tax identification number (TIN/PIN) for KRA eTIMS - must be exactly 11 characters (e.g., P051769063X)', 'kra-etims-integration'); ?>
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <?php
+    }
+
+    /**
+     * Save customer TIN field from admin user profile
+     */
+    public function save_user_profile_tin_field($user_id) {
+        // Check permissions
+        if (!current_user_can('edit_user', $user_id)) {
+            return false;
+        }
+        
+        if (isset($_POST['customer_tin'])) {
+            $customer_tin = sanitize_text_field($_POST['customer_tin']);
+            
+            // Validate and format TIN
+            $customer_tin = $this->validate_and_format_tin($customer_tin);
+            
+            update_user_meta($user_id, '_customer_tin', $customer_tin);
+        }
+    }
+
+    /**
+     * Add customer TIN column to users list
+     */
+    public function add_customer_tin_column($columns) {
+        $columns['customer_tin'] = __('Customer TIN/PIN', 'kra-etims-integration');
+        return $columns;
+    }
+
+    /**
+     * Show customer TIN in users list column
+     */
+    public function show_customer_tin_column($value, $column_name, $user_id) {
+        if ($column_name === 'customer_tin') {
+            $customer_tin = get_user_meta($user_id, '_customer_tin', true);
+            if (!empty($customer_tin)) {
+                return '<code>' . esc_html($customer_tin) . '</code>';
+            } else {
+                return '<span style="color: #999;">—</span>';
+            }
+        }
+        return $value;
     }
 }

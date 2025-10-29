@@ -68,6 +68,15 @@ class KRA_eTims_WC_Admin {
             array($this, 'render_settings_page')
         );
         
+        // Add Reports submenu under KRA eTims main menu
+        add_submenu_page(
+            'kra-etims-wc',
+            __('eTIMS Reports', 'kra-etims-integration'),
+            __('eTIMS Reports', 'kra-etims-integration'),
+            'manage_woocommerce',
+            'kra-etims-wc-reports',
+            array($this, 'render_reports_page')
+        );
 
     }
 
@@ -198,47 +207,15 @@ class KRA_eTims_WC_Admin {
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
         );
-        
-        add_settings_field(
-            'kra_etims_wc_auto_update_products',
-            __('Auto Update Products', 'kra-etims-integration'),
-            array($this, 'render_auto_update_products_field'),
-            'kra_etims_wc_settings',
-            'kra_etims_wc_api'
-        );
     }
 
     /**
      * Render settings page
      */
     public function render_settings_page() {
-        // Get current environment
-        $settings = get_option('kra_etims_wc_settings');
-        $current_env = isset($settings['environment']) ? $settings['environment'] : 'development';
-        $env_class = $current_env === 'production' ? 'production-env' : 'development-env';
-        
         ?>
         <div class="wrap">
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-            
-            <div class="kra-etims-environment-notice <?php echo esc_attr($env_class); ?>">
-                <h2>
-                    <?php if ($current_env === 'production'): ?>
-                        <span class="dashicons dashicons-warning"></span> 
-                        <?php _e('PRODUCTION ENVIRONMENT', 'kra-etims-integration'); ?>
-                    <?php else: ?>
-                        <span class="dashicons dashicons-admin-tools"></span> 
-                        <?php _e('DEVELOPMENT/SANDBOX ENVIRONMENT', 'kra-etims-integration'); ?>
-                    <?php endif; ?>
-                </h2>
-                <p>
-                    <?php if ($current_env === 'production'): ?>
-                        <?php _e('You are currently using the PRODUCTION environment. All transactions will be sent to the official KRA eTims system.', 'kra-etims-integration'); ?>
-                    <?php else: ?>
-                        <?php _e('You are currently using the DEVELOPMENT/SANDBOX environment. Use this for testing before moving to production.', 'kra-etims-integration'); ?>
-                    <?php endif; ?>
-                </p>
-            </div>
             
             <form method="post" action="options.php">
                 <?php
@@ -247,74 +224,182 @@ class KRA_eTims_WC_Admin {
                 submit_button();
                 ?>
             </form>
-            
+        </div>
+        <?php
+    }
 
+    /**
+     * Render reports page
+     */
+    public function render_reports_page() {
+        // Get filter parameters
+        $date_from = isset($_GET['date_from']) ? sanitize_text_field($_GET['date_from']) : '';
+        $date_to = isset($_GET['date_to']) ? sanitize_text_field($_GET['date_to']) : '';
+        $status_filter = isset($_GET['status_filter']) ? sanitize_text_field($_GET['status_filter']) : 'all';
+        
+        // Query orders that have been submitted to custom API
+        $args = array(
+            'limit' => -1,
+            'type' => 'shop_order',
+            'orderby' => 'date',
+            'order' => 'DESC',
+        );
+        
+        // Add date filter if provided
+        if ($date_from && $date_to) {
+            $args['date_created'] = $date_from . '...' . $date_to;
+        }
+        
+        $orders = wc_get_orders($args);
+        
+        // Filter orders that have been submitted to API
+        $submitted_orders = array();
+        foreach ($orders as $order) {
+            $custom_api_status = get_post_meta($order->get_id(), '_custom_api_status', true);
+            
+            // Apply status filter
+            if ($status_filter === 'all' || 
+                ($status_filter === 'success' && $custom_api_status === 'success') ||
+                ($status_filter === 'not_submitted' && empty($custom_api_status))) {
+                
+                if ($custom_api_status === 'success' || $status_filter === 'not_submitted') {
+                    $submitted_orders[] = $order;
+                }
+            }
+        }
+        
+        ?>
+        <div class="wrap">
+            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+            
+            <div style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-radius: 4px;">
+                <h2><?php _e('Filter Orders', 'kra-etims-integration'); ?></h2>
+                <form method="get" action="">
+                    <input type="hidden" name="page" value="kra-etims-wc-reports" />
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th><label for="date_from"><?php _e('Date From:', 'kra-etims-integration'); ?></label></th>
+                            <td>
+                                <input type="date" id="date_from" name="date_from" value="<?php echo esc_attr($date_from); ?>" />
+                            </td>
+                            <th><label for="date_to"><?php _e('Date To:', 'kra-etims-integration'); ?></label></th>
+                            <td>
+                                <input type="date" id="date_to" name="date_to" value="<?php echo esc_attr($date_to); ?>" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th><label for="status_filter"><?php _e('Status:', 'kra-etims-integration'); ?></label></th>
+                            <td colspan="3">
+                                <select id="status_filter" name="status_filter">
+                                    <option value="all" <?php selected($status_filter, 'all'); ?>><?php _e('All Orders', 'kra-etims-integration'); ?></option>
+                                    <option value="success" <?php selected($status_filter, 'success'); ?>><?php _e('Submitted to API', 'kra-etims-integration'); ?></option>
+                                    <option value="not_submitted" <?php selected($status_filter, 'not_submitted'); ?>><?php _e('Not Submitted', 'kra-etims-integration'); ?></option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <p>
+                        <button type="submit" class="button button-primary"><?php _e('Apply Filter', 'kra-etims-integration'); ?></button>
+                        <a href="?page=kra-etims-wc-reports" class="button"><?php _e('Clear Filter', 'kra-etims-integration'); ?></a>
+                    </p>
+                </form>
+            </div>
+            
+            <div style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-radius: 4px;">
+                <h2><?php _e('Submitted Orders', 'kra-etims-integration'); ?> (<?php echo count($submitted_orders); ?>)</h2>
+                
+                <?php if (empty($submitted_orders)) : ?>
+                    <p><?php _e('No orders found matching your criteria.', 'kra-etims-integration'); ?></p>
+                <?php else : ?>
+                    <table class="wp-list-table widefat fixed striped">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;"><?php _e('Order #', 'kra-etims-integration'); ?></th>
+                                <th><?php _e('Date', 'kra-etims-integration'); ?></th>
+                                <th><?php _e('Customer', 'kra-etims-integration'); ?></th>
+                                <th><?php _e('Total', 'kra-etims-integration'); ?></th>
+                                <th><?php _e('Etims Invoice No', 'kra-etims-integration'); ?></th>
+                                <th><?php _e('Receipt Signature', 'kra-etims-integration'); ?></th>
+                                <th><?php _e('QR Code', 'kra-etims-integration'); ?></th>
+                                <th><?php _e('Actions', 'kra-etims-integration'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($submitted_orders as $order) : 
+                                $order_id = $order->get_id();
+                                $receipt_number = get_post_meta($order_id, '_receipt_number', true);
+                                $receipt_signature = get_post_meta($order_id, '_receipt_signature', true);
+                                $qr_url = KRA_eTims_WC_QR_Code::get_order_qr_url($order_id);
+                                $custom_api_status = get_post_meta($order_id, '_custom_api_status', true);
+                                
+                                // Format signature
+                                $formatted_signature = $this->format_receipt_signature($receipt_signature);
+                            ?>
+                            <tr>
+                                <td>
+                                    <strong><a href="<?php echo admin_url('post.php?post=' . $order_id . '&action=edit'); ?>">#<?php echo $order_id; ?></a></strong>
+                                </td>
+                                <td><?php echo esc_html($order->get_date_created()->date_i18n(get_option('date_format'))); ?></td>
+                                <td>
+                                    <?php 
+                                    $customer_name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
+                                    echo esc_html($customer_name ? $customer_name : 'Guest');
+                                    ?>
+                                </td>
+                                <td><?php echo $order->get_formatted_order_total(); ?></td>
+                                <td>
+                                    <?php if ($receipt_number) : ?>
+                                        <code><?php echo esc_html($receipt_number); ?></code>
+                                    <?php else : ?>
+                                        <span style="color: #999;">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($receipt_signature) : ?>
+                                        <code style="font-size: 11px;"><?php echo esc_html($formatted_signature); ?></code>
+                                    <?php else : ?>
+                                        <span style="color: #999;">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($qr_url) : ?>
+                                        <a href="<?php echo esc_url($qr_url); ?>" target="_blank" class="button button-small">
+                                            <?php _e('View QR', 'kra-etims-integration'); ?>
+                                        </a>
+                                    <?php else : ?>
+                                        <span style="color: #999;">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <a href="<?php echo admin_url('post.php?post=' . $order_id . '&action=edit'); ?>" class="button button-small">
+                                        <?php _e('View Order', 'kra-etims-integration'); ?>
+                                    </a>
+                                    <?php if ($custom_api_status === 'success') : ?>
+                                        <span style="color: #00a32a; margin-left: 5px;">✓</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
             
             <style>
-                .kra-etims-environment-notice {
-                    background: #fff;
-                    border: 1px solid #ccd0d4;
-                    border-radius: 4px;
-                    padding: 15px;
-                    margin: 20px 0;
-                }
-                
-                .kra-etims-environment-notice h2 {
-                    margin: 0 0 10px 0;
-                    font-size: 16px;
-                }
-                
-                .kra-etims-environment-notice h2 .dashicons {
-                    margin-right: 8px;
-                }
-                
-                .production-env {
-                    border-left: 4px solid #d63638;
-                }
-                
-                .production-env h2 {
-                    color: #d63638;
-                }
-                
-                .development-env {
-                    border-left: 4px solid #00a32a;
-                }
-                
-                .development-env h2 {
-                    color: #00a32a;
-                }
-                
-                .kra-etims-environment-selector {
-                    display: flex;
-                    gap: 15px;
-                    margin-bottom: 10px;
-                }
-                .environment-option {
-                    flex: 1;
-                    border: 2px solid #ccc;
-                    border-radius: 5px;
-                    padding: 15px;
-                    cursor: pointer;
-                    display: flex;
-                    flex-direction: column;
-                    transition: all 0.3s ease;
-                }
-                .environment-option.selected {
-                    border-color: #2271b1;
-                    background-color: #f0f6fc;
-                }
-                .environment-option:hover {
-                    border-color: #2271b1;
-                }
-                .environment-label {
-                    display: flex;
-                    align-items: center;
+                .wp-list-table th {
                     font-weight: bold;
-                    margin-bottom: 5px;
+                    background: #f0f0f1;
                 }
-                .environment-description {
+                .wp-list-table td {
+                    vertical-align: middle;
+                }
+                .wp-list-table code {
+                    background: #f0f0f1;
+                    padding: 3px 6px;
+                    border-radius: 3px;
                     font-size: 12px;
-                    color: #666;
                 }
             </style>
         </div>
@@ -618,21 +703,6 @@ class KRA_eTims_WC_Admin {
     }
 
     /**
-     * Render auto update products field
-     */
-    public function render_auto_update_products_field() {
-        $settings = get_option('kra_etims_wc_settings');
-        $value = isset($settings['auto_update_products']) ? $settings['auto_update_products'] : 'no';
-        ?>
-        <select name="kra_etims_wc_settings[auto_update_products]">
-            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-integration'); ?></option>
-            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-integration'); ?></option>
-        </select>
-        <p class="description"><?php _e('Automatically update products in your API when they are modified.', 'kra-etims-integration'); ?></p>
-        <?php
-    }
-
-    /**
      * Sanitize settings
      *
      * @param array $input The settings input.
@@ -689,7 +759,6 @@ class KRA_eTims_WC_Admin {
         
         // Sanitize product API settings
         $sanitized['auto_submit_products'] = isset($input['auto_submit_products']) ? 'yes' : 'no';
-        $sanitized['auto_update_products'] = isset($input['auto_update_products']) ? 'yes' : 'no';
         
         return $sanitized;
     }
@@ -723,12 +792,18 @@ class KRA_eTims_WC_Admin {
         }
         
         // Load on order edit pages for customer TIN functionality
-        if ($hook === 'post.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'shop_order') {
+        $is_order_page = (
+            ($hook === 'post.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'shop_order') ||
+            ($hook === 'woocommerce_page_wc-orders') ||
+            (strpos($hook, 'wc-orders') !== false)
+        );
+        
+        if ($is_order_page) {
             wp_enqueue_script(
                 'kra-etims-wc-order-admin',
                 KRA_ETIMS_WC_PLUGIN_URL . 'assets/js/order-admin.js',
                 array('jquery'),
-                KRA_ETIMS_WC_VERSION,
+                KRA_ETIMS_WC_VERSION . '.' . time(), // Add timestamp to force reload
                 true
             );
             
