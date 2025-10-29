@@ -83,15 +83,34 @@ class KRA_eTims_WC_Tax_Handler {
         
         if (!$taxes_setup) {
             $this->setup_woocommerce_taxes();
+            $this->clear_all_tax_rates(); // Clear any existing tax rates
             update_option('kra_etims_wc_taxes_setup', true);
         }
+    }
+    
+    /**
+     * Clear all WooCommerce tax rates
+     * This prevents WooCommerce from calculating tax on tax-inclusive prices
+     */
+    private function clear_all_tax_rates() {
+        global $wpdb;
+        
+        // Delete all tax rates
+        $wpdb->query("DELETE FROM {$wpdb->prefix}woocommerce_tax_rates");
+        $wpdb->query("DELETE FROM {$wpdb->prefix}woocommerce_tax_rate_locations");
+        
+        // Clear WooCommerce cache
+        delete_transient('wc_tax_rates');
+        wp_cache_delete('tax-rates', 'woocommerce');
+        
+        error_log('KRA eTims: All WooCommerce tax rates cleared to prevent double taxation');
     }
 
     /**
      * Setup WooCommerce taxes for KRA compliance
      */
     public function setup_woocommerce_taxes() {
-        // Enable tax calculations
+        // Enable tax calculations (for API reporting only, not for display)
         update_option('woocommerce_calc_taxes', 'yes');
         
         // Set prices to include tax (tax-inclusive pricing)
@@ -106,13 +125,11 @@ class KRA_eTims_WC_Tax_Handler {
         // Set tax based on customer billing address
         update_option('woocommerce_tax_based_on', 'billing');
         
-        // Setup tax classes
-        $this->setup_tax_classes();
+        // DO NOT setup tax classes or rates
+        // Tax calculation will be done only for API reporting, not by WooCommerce
+        // This prevents double taxation on tax-inclusive prices
         
-        // Setup tax rates
-        $this->setup_tax_rates();
-        
-        error_log('KRA eTims: WooCommerce taxes configured for KRA compliance');
+        error_log('KRA eTims: WooCommerce taxes configured for KRA compliance (tax-inclusive only, no rates)');
     }
 
     /**
@@ -356,22 +373,26 @@ class KRA_eTims_WC_Tax_Handler {
 
     /**
      * Sync WooCommerce tax class with KRA tax type
+     * DISABLED: Do not sync tax classes to prevent WooCommerce from calculating tax
+     * Tax calculation is handled for API reporting only, not for display
      *
      * @param int $post_id Product ID
      */
     public function sync_tax_class_with_kra_type($post_id) {
+        // DISABLED: Do not assign WooCommerce tax classes
+        // We keep KRA tax type in product meta for API reporting only
+        // This prevents WooCommerce from calculating tax on top of tax-inclusive prices
+        
         $kra_tax_type = get_post_meta($post_id, '_injonge_taxid', true);
         
-        if (!empty($kra_tax_type) && isset($this->tax_class_map[$kra_tax_type])) {
-            $wc_tax_class = $this->tax_class_map[$kra_tax_type];
-            
-            // Update product tax class
+        if (!empty($kra_tax_type)) {
+            // Just set the product to use standard tax class (with no rates configured)
             $product = wc_get_product($post_id);
             if ($product) {
-                $product->set_tax_class($wc_tax_class);
+                $product->set_tax_class(''); // Empty = Standard tax class
                 $product->save();
                 
-                error_log("KRA eTims: Synced product {$post_id} - KRA Type: {$kra_tax_type} -> WC Class: {$wc_tax_class}");
+                error_log("KRA eTims: Product {$post_id} - KRA Type: {$kra_tax_type} saved (WC tax class set to Standard)");
             }
         }
     }

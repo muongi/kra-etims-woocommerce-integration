@@ -41,6 +41,9 @@ class KRA_eTims_WC_Admin {
         
         // Add admin notices
         add_action('admin_notices', array($this, 'admin_notices'));
+        
+        // Add AJAX handler to clear tax rates
+        add_action('wp_ajax_kra_etims_clear_tax_rates', array($this, 'ajax_clear_tax_rates'));
     }
 
     /**
@@ -216,6 +219,54 @@ class KRA_eTims_WC_Admin {
                 submit_button();
                 ?>
             </form>
+            
+            <div style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-left: 4px solid #d63638; border-radius: 4px;">
+                <h2 style="margin-top: 0;"><?php _e('Tax Rate Fix (Tax-Inclusive Pricing)', 'kra-etims-integration'); ?></h2>
+                <p><?php _e('If your products are showing incorrect prices (e.g., 533 showing as 618), click the button below to clear all WooCommerce tax rates. This prevents double taxation on tax-inclusive prices.', 'kra-etims-integration'); ?></p>
+                <p><strong><?php _e('Note:', 'kra-etims-integration'); ?></strong> <?php _e('After clicking this button, you may need to re-save your products for the changes to take effect. Tax will still be calculated correctly for API reporting.', 'kra-etims-integration'); ?></p>
+                <button type="button" id="kra-etims-clear-tax-rates" class="button button-secondary" style="background-color: #d63638; border-color: #d63638; color: #fff;">
+                    <?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-integration'); ?>
+                </button>
+                <span id="kra-etims-tax-clear-message" style="margin-left: 10px;"></span>
+            </div>
+            
+            <script>
+            jQuery(document).ready(function($) {
+                $('#kra-etims-clear-tax-rates').on('click', function() {
+                    if (!confirm('<?php _e('Are you sure you want to clear all WooCommerce tax rates? This will fix double taxation issues but you may need to re-save your products.', 'kra-etims-integration'); ?>')) {
+                        return;
+                    }
+                    
+                    var $button = $(this);
+                    var $message = $('#kra-etims-tax-clear-message');
+                    
+                    $button.prop('disabled', true).text('<?php _e('Clearing...', 'kra-etims-integration'); ?>');
+                    $message.html('');
+                    
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'kra_etims_clear_tax_rates',
+                            nonce: '<?php echo wp_create_nonce('kra_etims_clear_tax_rates'); ?>'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                $message.html('<span style="color: #00a32a;">✓ ' + response.data.message + '</span>');
+                                alert('<?php _e('Tax rates cleared successfully! Please re-save your products to apply changes.', 'kra-etims-integration'); ?>');
+                            } else {
+                                $message.html('<span style="color: #d63638;">✗ ' + response.data + '</span>');
+                            }
+                            $button.prop('disabled', false).text('<?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-integration'); ?>');
+                        },
+                        error: function() {
+                            $message.html('<span style="color: #d63638;">✗ <?php _e('An error occurred.', 'kra-etims-integration'); ?></span>');
+                            $button.prop('disabled', false).text('<?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-integration'); ?>');
+                        }
+                    });
+                });
+            });
+            </script>
         </div>
         <?php
     }
@@ -994,6 +1045,35 @@ class KRA_eTims_WC_Admin {
             </div>
             <?php
         }
+    }
+    
+    /**
+     * AJAX handler to clear WooCommerce tax rates
+     */
+    public function ajax_clear_tax_rates() {
+        // Check nonce
+        if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'kra_etims_clear_tax_rates')) {
+            wp_send_json_error(__('Security check failed.', 'kra-etims-integration'));
+        }
+        
+        // Check permissions
+        if (!current_user_can('manage_woocommerce')) {
+            wp_send_json_error(__('Insufficient permissions.', 'kra-etims-integration'));
+        }
+        
+        global $wpdb;
+        
+        // Delete all tax rates
+        $rates_deleted = $wpdb->query("DELETE FROM {$wpdb->prefix}woocommerce_tax_rates");
+        $locations_deleted = $wpdb->query("DELETE FROM {$wpdb->prefix}woocommerce_tax_rate_locations");
+        
+        // Clear WooCommerce cache
+        delete_transient('wc_tax_rates');
+        wp_cache_delete('tax-rates', 'woocommerce');
+        
+        wp_send_json_success(array(
+            'message' => sprintf(__('Successfully cleared %d tax rates and %d locations.', 'kra-etims-integration'), $rates_deleted, $locations_deleted)
+        ));
     }
     
     /**
