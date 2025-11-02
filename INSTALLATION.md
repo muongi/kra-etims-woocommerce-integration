@@ -36,7 +36,7 @@ This plugin is specifically designed to work with **Injonge Etims POS** system f
 1. **Download the Plugin**
    ```bash
    # Clone the repository
-   git clone https://github.com/your-username/kra-etims-woocommerce.git
+   git clone https://github.com/your-username/kra-etims-connector.git
    
    # Or download the ZIP file from releases
    ```

@@ -38,7 +38,7 @@ We welcome contributions from the community! Here are the main ways you can cont
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/kra-etims-woocommerce.git
+   git clone https://github.com/your-username/kra-etims-connector.git
    cd kra-etims-woocommerce
    ```
 
