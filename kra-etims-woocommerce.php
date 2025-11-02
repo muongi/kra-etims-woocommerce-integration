@@ -31,7 +31,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
     add_action('admin_notices', function() {
         ?>
         <div class="notice notice-error">
-            <p><?php _e('KRA eTims WooCommerce Integration requires WooCommerce to be installed and activated.', 'kra-etims-integration'); ?></p>
+            <p><?php _e('KRA eTims WooCommerce Plugin requires WooCommerce to be installed and activated.', 'kra-etims-integration'); ?></p>
         </div>
         <?php
     });

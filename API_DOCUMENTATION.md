@@ -1,4 +1,4 @@
-# API Documentation - KRA eTims WooCommerce Integration
+# API Documentation - KRA eTims WooCommerce Plugin
 
 This document provides comprehensive information about the API integration between WooCommerce and the KRA eTims system through **Injonge Etims POS**.
 
@@ -14,7 +14,7 @@ This plugin is specifically designed to work with **Injonge Etims POS** system f
 
 ## 🔗 API Overview
 
-The KRA eTims WooCommerce Integration plugin communicates with Injonge Etims POS API endpoints to:
+The KRA eTims WooCommerce Plugin communicates with Injonge Etims POS API endpoints to:
 - Upload category data and retrieve Server IDs (SIDs)
 - Upload product data with category references
 - Generate KRA eTims compliant receipts

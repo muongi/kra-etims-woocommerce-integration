@@ -1,6 +1,6 @@
-# Installation Guide - KRA eTims WooCommerce Integration
+# Installation Guide - KRA eTims WooCommerce Plugin
 
-This guide provides detailed step-by-step instructions for installing and configuring the KRA eTims WooCommerce Integration plugin.
+This guide provides detailed step-by-step instructions for installing and configuring the KRA eTims WooCommerce Plugin.
 
 ## 📋 Prerequisites
 
@@ -44,7 +44,7 @@ This plugin is specifically designed to work with **Injonge Etims POS** system f
 
 3. **Activate the Plugin**
    - Go to WordPress Admin → Plugins
-   - Find "KRA eTims WooCommerce Integration"
+   - Find "KRA eTims WooCommerce Plugin"
    - Click "Activate"
 
 ### Method 2: WordPress Admin Upload

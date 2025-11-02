@@ -1,4 +1,4 @@
-# KRA eTims WooCommerce Integration
+# KRA eTims WooCommerce Plugin
 
 A comprehensive WordPress plugin that integrates WooCommerce stores with the Kenya Revenue Authority (KRA) eTims system for automated tax reporting and compliance.
 
@@ -69,7 +69,7 @@ This plugin is specifically designed to work with **Injonge Etims POS** system f
 
 2. **Activate the Plugin**
    - Go to WordPress Admin → Plugins
-   - Find "KRA eTims WooCommerce Integration"
+   - Find "KRA eTims WooCommerce Plugin"
    - Click "Activate"
 
 3. **Configure Settings**

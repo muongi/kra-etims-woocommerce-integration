@@ -1,5 +1,5 @@
 /**
- * KRA eTims WooCommerce Integration Order Admin JavaScript
+ * KRA eTims WooCommerce Plugin Order Admin JavaScript
  */
 (function($) {
     'use strict';

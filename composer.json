@@ -1,6 +1,6 @@
 {
     "name": "kra-etims/woocommerce-integration",
-    "description": "KRA eTims WooCommerce Integration Plugin",
+    "description": "KRA eTims WooCommerce Plugin",
     "type": "wordpress-plugin",
     "license": "ISC",
     "authors": [

@@ -1,6 +1,6 @@
-# Documentation Summary - KRA eTims WooCommerce Integration
+# Documentation Summary - KRA eTims WooCommerce Plugin
 
-This document provides an overview of all documentation files included with the KRA eTims WooCommerce Integration plugin.
+This document provides an overview of all documentation files included with the KRA eTims WooCommerce Plugin.
 
 ## 📚 Documentation Files Overview
 

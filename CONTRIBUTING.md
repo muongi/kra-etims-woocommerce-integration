@@ -1,6 +1,6 @@
-# Contributing to KRA eTims WooCommerce Integration
+# Contributing to KRA eTims WooCommerce Plugin
 
-Thank you for your interest in contributing to the KRA eTims WooCommerce Integration plugin! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to the KRA eTims WooCommerce Plugin! This document provides guidelines and information for contributors.
 
 ## 🤝 How to Contribute
 
@@ -374,4 +374,4 @@ Rhenium Group Limited provides complete KRA eTims API integration services inclu
 
 ---
 
-Thank you for contributing to the KRA eTims WooCommerce Integration plugin! Your contributions help make this plugin better for everyone. For API integration services, contact Rhenium Group Limited. 
+Thank you for contributing to the KRA eTims WooCommerce Plugin! Your contributions help make this plugin better for everyone. For API integration services, contact Rhenium Group Limited. 

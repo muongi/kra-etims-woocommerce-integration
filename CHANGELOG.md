@@ -1,4 +1,4 @@
-# Changelog - KRA eTims WooCommerce Integration
+# Changelog - KRA eTims WooCommerce Plugin
 
 All notable changes to this project will be documented in this file.
 
@@ -189,4 +189,4 @@ We welcome contributions! Please see the CONTRIBUTING.md file for details.
 
 ---
 
-**Note**: This changelog documents all major changes and features implemented in the KRA eTims WooCommerce Integration plugin. For detailed technical information, refer to the API documentation and code comments. For API integration services, contact Rhenium Group Limited. 
+**Note**: This changelog documents all major changes and features implemented in the KRA eTims WooCommerce Plugin. For detailed technical information, refer to the API documentation and code comments. For API integration services, contact Rhenium Group Limited. 
