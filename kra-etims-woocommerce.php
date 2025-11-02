@@ -1,7 +1,6 @@
 <?php
 /**
  * Plugin Name: KRA eTims Connector
- * Plugin URI: https://github.com/matatashadrack/kra-etims-connector
  * Description: Integrates WooCommerce with Kenya Revenue Authority (KRA) Electronic Tax Invoice Management System (eTims) to Generate eTims compliant receipts
  * Version: 1.0.1
  * Author: Rhenium Group Limited    

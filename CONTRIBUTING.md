@@ -36,11 +36,9 @@ We welcome contributions from the community! Here are the main ways you can cont
 
 ### Local Development Setup
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/your-username/kra-etims-connector.git
-   cd kra-etims-woocommerce
-   ```
+1. **Get the Plugin Files**
+   - Obtain the plugin source files
+   - Navigate to the plugin directory
 
 2. **Set Up WordPress Environment**
    - Install WordPress locally

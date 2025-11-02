@@ -34,12 +34,8 @@ This plugin is specifically designed to work with **Injonge Etims POS** system f
 ### Method 1: Manual Installation (Recommended)
 
 1. **Download the Plugin**
-   ```bash
-   # Clone the repository
-   git clone https://github.com/your-username/kra-etims-connector.git
-   
-   # Or download the ZIP file from releases
-   ```
+   - Download the ZIP file from your plugin source
+   - Or obtain the plugin files from your provider
 
 2. **Upload to WordPress**
    - Extract the plugin files
