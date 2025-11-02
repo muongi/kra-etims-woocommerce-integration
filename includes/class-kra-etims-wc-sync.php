@@ -45,8 +45,8 @@ class KRA_eTims_WC_Sync {
     public function add_sync_menu() {
         add_submenu_page(
             'kra-etims-wc',
-            __('Sync Categories & Products', 'kra-etims-integration'),
-            __('Sync Items', 'kra-etims-integration'),
+            __('Sync Categories & Products', 'kra-etims-connector'),
+            __('Sync Items', 'kra-etims-connector'),
             'manage_woocommerce',
             'kra-etims-sync',
             array($this, 'render_sync_page')
@@ -61,14 +61,14 @@ class KRA_eTims_WC_Sync {
         $db_prefix = $wpdb->prefix;
         ?>
         <div class="wrap">
-            <h1><?php _e('KRA eTims - Sync Categories & Products', 'kra-etims-integration'); ?></h1>
+            <h1><?php _e('KRA eTims - Sync Categories & Products', 'kra-etims-connector'); ?></h1>
             
             <!-- Database Prefix Info -->
             <div class="kra-etims-db-info" style="background: #f0f6fc; border-left: 4px solid #0073aa; padding: 10px 15px; margin: 20px 0; border-radius: 4px;">
                 <p style="margin: 0;">
-                    <strong><?php _e('Database Prefix:', 'kra-etims-integration'); ?></strong> 
+                    <strong><?php _e('Database Prefix:', 'kra-etims-connector'); ?></strong> 
                     <code style="background: #fff; padding: 2px 6px; border-radius: 3px; font-weight: bold;"><?php echo esc_html($db_prefix); ?></code>
-                    <span style="color: #666; font-size: 0.9em;"><?php _e('(All operations are compatible with any database prefix)', 'kra-etims-integration'); ?></span>
+                    <span style="color: #666; font-size: 0.9em;"><?php _e('(All operations are compatible with any database prefix)', 'kra-etims-connector'); ?></span>
                 </p>
             </div>
             
@@ -77,7 +77,7 @@ class KRA_eTims_WC_Sync {
                 <h3 style="margin-top: 0; color: #dc3545;">⚠️ Force Clear All KRA Data</h3>
                 <p>Use this to forcefully clear ALL KRA eTims data (categories SIDs, product codes, sync status). This is useful when regular clear buttons are not working.</p>
                 <button id="force-clear-all-btn" class="button button-danger" style="background: #dc3545; color: white; border-color: #dc3545;">
-                    <?php _e('🗑️ Force Clear All KRA Data', 'kra-etims-integration'); ?>
+                    <?php _e('🗑️ Force Clear All KRA Data', 'kra-etims-connector'); ?>
                 </button>
                 <div id="force-clear-progress" style="display: none; margin-top: 10px;">
                     <div class="progress-bar">
@@ -90,52 +90,52 @@ class KRA_eTims_WC_Sync {
             <div class="kra-etims-sync-container">
                 <!-- Categories Section -->
                 <div class="kra-etims-sync-section">
-                    <h2><?php _e('Categories Synchronization', 'kra-etims-integration'); ?></h2>
-                    <p><?php _e('Upload categories to your API and get SID (Server ID) for each category.', 'kra-etims-integration'); ?></p>
+                    <h2><?php _e('Categories Synchronization', 'kra-etims-connector'); ?></h2>
+                    <p><?php _e('Upload categories to your API and get SID (Server ID) for each category.', 'kra-etims-connector'); ?></p>
                     
                     <div class="kra-etims-category-status">
                         <?php $this->display_category_status(); ?>
                     </div>
                     
                     <button id="sync-categories-btn" class="button button-primary">
-                        <?php _e('Sync New Categories', 'kra-etims-integration'); ?>
+                        <?php _e('Sync New Categories', 'kra-etims-connector'); ?>
                     </button>
                     <button id="resync-categories-btn" class="button button-primary" style="margin-left: 10px;">
-                        <?php _e('Force Resync All', 'kra-etims-integration'); ?>
+                        <?php _e('Force Resync All', 'kra-etims-connector'); ?>
                     </button>
                     <button id="clear-categories-btn" class="button button-secondary" style="margin-left: 10px;">
-                        <?php _e('Clear Category SIDs', 'kra-etims-integration'); ?>
+                        <?php _e('Clear Category SIDs', 'kra-etims-connector'); ?>
                     </button>
                     
                     <div id="category-sync-progress" style="display: none;">
                         <div class="progress-bar">
                             <div class="progress-fill"></div>
                         </div>
-                        <p id="category-sync-status"><?php _e('Syncing categories...', 'kra-etims-integration'); ?></p>
+                        <p id="category-sync-status"><?php _e('Syncing categories...', 'kra-etims-connector'); ?></p>
                     </div>
                 </div>
                 
                 <!-- Products Section -->
                 <div class="kra-etims-sync-section">
-                    <h2><?php _e('Products Synchronization', 'kra-etims-integration'); ?></h2>
-                    <p><?php _e('Upload products to your API. Only products with categories that have SID and unspec code will be uploaded.', 'kra-etims-integration'); ?></p>
+                    <h2><?php _e('Products Synchronization', 'kra-etims-connector'); ?></h2>
+                    <p><?php _e('Upload products to your API. Only products with categories that have SID and unspec code will be uploaded.', 'kra-etims-connector'); ?></p>
                     
                     <div class="kra-etims-product-status">
                         <?php $this->display_product_status(); ?>
                     </div>
                     
                     <button id="sync-products-btn" class="button button-primary">
-                        <?php _e('Sync Products to API', 'kra-etims-integration'); ?>
+                        <?php _e('Sync Products to API', 'kra-etims-connector'); ?>
                     </button>
                     <button id="clear-products-btn" class="button button-secondary" style="margin-left: 10px;">
-                        <?php _e('Clear Product Data', 'kra-etims-integration'); ?>
+                        <?php _e('Clear Product Data', 'kra-etims-connector'); ?>
                     </button>
                     
                     <div id="product-sync-progress" style="display: none;">
                         <div class="progress-bar">
                             <div class="progress-fill"></div>
                         </div>
-                        <p id="product-sync-status"><?php _e('Syncing products...', 'kra-etims-integration'); ?></p>
+                        <p id="product-sync-status"><?php _e('Syncing products...', 'kra-etims-connector'); ?></p>
                     </div>
                 </div>
             </div>

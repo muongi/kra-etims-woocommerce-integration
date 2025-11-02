@@ -56,7 +56,7 @@ class KRA_eTims_WC_Order_Handler {
         if (!$order) {
             return array(
                 'success' => false,
-                'message' => __('Order not found.', 'kra-etims-integration')
+                'message' => __('Order not found.', 'kra-etims-connector')
             );
         }
         
@@ -64,7 +64,7 @@ class KRA_eTims_WC_Order_Handler {
         if (in_array($order->get_status(), array('draft', 'pending'))) {
             return array(
                 'success' => false,
-                'message' => __('Order must be processed before submitting to API.', 'kra-etims-integration')
+                'message' => __('Order must be processed before submitting to API.', 'kra-etims-connector')
             );
         }
         
@@ -76,7 +76,7 @@ class KRA_eTims_WC_Order_Handler {
         if ($custom_api_status === 'success') {
             return array(
                 'success' => false,
-                'message' => __('Order already submitted to custom API. Cannot resubmit.', 'kra-etims-integration')
+                'message' => __('Order already submitted to custom API. Cannot resubmit.', 'kra-etims-connector')
             );
         }
         
@@ -108,37 +108,37 @@ class KRA_eTims_WC_Order_Handler {
             }
             
             // Add order note with receipt details
-            $note = __('Order successfully submitted to custom API with invoice number: ', 'eTIMS') . 
+            $note = __('Order successfully submitted to custom API with invoice number: ', 'kra-etims-connector') . 
                    $receipt_data['invcNo'];
             
             if ($receipt_details) {
-                $note .= "\n" . __('Receipt Details:', 'eTIMS');
-                $note .= "\n- " . __('Invoice No:', 'eTIMS') . ' ' . $receipt_details['rcptNo'];
+                $note .= "\n" . __('Receipt Details:', 'kra-etims-connector');
+                $note .= "\n- " . __('Invoice No:', 'kra-etims-connector') . ' ' . $receipt_details['rcptNo'];
                 $formatted_rcpt_sign = trim(chunk_split($receipt_details['rcptSign'], 4, '-'), '-');
-                $note .= "\n- " . __('Receipt Signature:', 'eTIMS') . ' ' . $formatted_rcpt_sign;
-                $note .= "\n- " . __('Receipt Date:', 'eTIMS') . ' ' . $receipt_details['vsdcRcptPbctDate'];
-                $note .= "\n- " . __('CU Number:', 'eTIMS') . ' ' . $receipt_details['mrcNo'];
-                $note .= "\n- " . __('SCU ID:', 'eTIMS') . ' ' . $receipt_details['sdcId'];
+                $note .= "\n- " . __('Receipt Signature:', 'kra-etims-connector') . ' ' . $formatted_rcpt_sign;
+                $note .= "\n- " . __('Receipt Date:', 'kra-etims-connector') . ' ' . $receipt_details['vsdcRcptPbctDate'];
+                $note .= "\n- " . __('CU Number:', 'kra-etims-connector') . ' ' . $receipt_details['mrcNo'];
+                $note .= "\n- " . __('SCU ID:', 'kra-etims-connector') . ' ' . $receipt_details['sdcId'];
                 
                 // Add QR code URL
                 $qr_url = KRA_eTims_WC_QR_Code::get_order_qr_url($order_id);
                 if ($qr_url) {
-                    $note .= "\n- " . __('QR Code URL:', 'eTIMS') . ' ' . $qr_url;
+                    $note .= "\n- " . __('QR Code URL:', 'kra-etims-connector') . ' ' . $qr_url;
                 }
             }
             
             $order->add_order_note($note);
             
             // Prepare detailed success message with transaction details
-            $success_message = __('Order successfully submitted to custom API.', 'kra-etims-integration');
+            $success_message = __('Order successfully submitted to custom API.', 'kra-etims-connector');
             
             if ($receipt_details) {
-                $success_message .= "\n\n" . __('Transaction Details:', 'kra-etims-integration');
-                $success_message .= "\n- " . __('Receipt Number:', 'kra-etims-integration') . ' ' . $receipt_details['rcptNo'];
-                $success_message .= "\n- " . __('Receipt Signature:', 'kra-etims-integration') . ' ' . $this->format_receipt_signature($receipt_details['rcptSign']);
-                $success_message .= "\n- " . __('Receipt Date:', 'kra-etims-integration') . ' ' . $receipt_details['vsdcRcptPbctDate'];
-                $success_message .= "\n- " . __('MRC Number:', 'kra-etims-integration') . ' ' . $receipt_details['mrcNo'];
-                $success_message .= "\n- " . __('SCU ID:', 'kra-etims-integration') . ' ' . $receipt_details['sdcId'];
+                $success_message .= "\n\n" . __('Transaction Details:', 'kra-etims-connector');
+                $success_message .= "\n- " . __('Receipt Number:', 'kra-etims-connector') . ' ' . $receipt_details['rcptNo'];
+                $success_message .= "\n- " . __('Receipt Signature:', 'kra-etims-connector') . ' ' . $this->format_receipt_signature($receipt_details['rcptSign']);
+                $success_message .= "\n- " . __('Receipt Date:', 'kra-etims-connector') . ' ' . $receipt_details['vsdcRcptPbctDate'];
+                $success_message .= "\n- " . __('MRC Number:', 'kra-etims-connector') . ' ' . $receipt_details['mrcNo'];
+                $success_message .= "\n- " . __('SCU ID:', 'kra-etims-connector') . ' ' . $receipt_details['sdcId'];
             }
             
             return array(
@@ -152,7 +152,7 @@ class KRA_eTims_WC_Order_Handler {
             
             // Add order note
             $order->add_order_note(
-                __('Failed to submit order to custom API: ', 'kra-etims-integration') . 
+                __('Failed to submit order to custom API: ', 'kra-etims-connector') . 
                 $e->getMessage()
             );
             
@@ -221,7 +221,7 @@ class KRA_eTims_WC_Order_Handler {
                 
                 $items[] = array(
                     'itemCd' => 'SHIPPING',
-                    'itemNm' => __('Shipping', 'kra-etims-integration'),
+                    'itemNm' => __('Shipping', 'kra-etims-connector'),
                     'qty' => 1,
                     'prc' => $shipping_total,
                     'splyAmt' => $shipping_total,
@@ -641,7 +641,7 @@ class KRA_eTims_WC_Order_Handler {
         if (!current_user_can('manage_options')) {
             return array(
                 'success' => false,
-                'message' => __('Insufficient permissions. Only administrators can process refunds.', 'kra-etims-integration')
+                'message' => __('Insufficient permissions. Only administrators can process refunds.', 'kra-etims-connector')
             );
         }
         
@@ -650,7 +650,7 @@ class KRA_eTims_WC_Order_Handler {
         if (!$order) {
             return array(
                 'success' => false,
-                'message' => __('Order not found.', 'kra-etims-integration')
+                'message' => __('Order not found.', 'kra-etims-connector')
             );
         }
         
@@ -659,7 +659,7 @@ class KRA_eTims_WC_Order_Handler {
         if ($custom_api_status !== 'success') {
             return array(
                 'success' => false,
-                'message' => __('Original order must be submitted successfully before processing refund.', 'kra-etims-integration')
+                'message' => __('Original order must be submitted successfully before processing refund.', 'kra-etims-connector')
             );
         }
         
@@ -668,7 +668,7 @@ class KRA_eTims_WC_Order_Handler {
         if ($refund_status === 'success') {
             return array(
                 'success' => false,
-                'message' => __('Refund already processed for this order.', 'kra-etims-integration')
+                'message' => __('Refund already processed for this order.', 'kra-etims-connector')
             );
         }
         
@@ -689,16 +689,16 @@ class KRA_eTims_WC_Order_Handler {
             update_post_meta($order_id, '_custom_api_refund_response', $custom_response);
             
             // Add order note
-            $note = __('Refund processed and submitted to custom API.', 'kra-etims-integration');
+            $note = __('Refund processed and submitted to custom API.', 'kra-etims-connector');
             if ($receipt_details) {
-                $note .= "\n\n" . __('Refund Transaction Details:', 'kra-etims-integration');
-                $note .= "\n- " . __('Receipt Number:', 'kra-etims-integration') . ' ' . $receipt_details['rcptNo'];
-                $note .= "\n- " . __('Receipt Signature:', 'kra-etims-integration') . ' ' . $receipt_details['rcptSign'];
+                $note .= "\n\n" . __('Refund Transaction Details:', 'kra-etims-connector');
+                $note .= "\n- " . __('Receipt Number:', 'kra-etims-connector') . ' ' . $receipt_details['rcptNo'];
+                $note .= "\n- " . __('Receipt Signature:', 'kra-etims-connector') . ' ' . $receipt_details['rcptSign'];
             }
             $order->add_order_note($note);
             
             // Prepare success message
-            $success_message = __('Refund successfully submitted to custom API.', 'kra-etims-integration');
+            $success_message = __('Refund successfully submitted to custom API.', 'kra-etims-connector');
             
             return array(
                 'success' => true,
@@ -711,7 +711,7 @@ class KRA_eTims_WC_Order_Handler {
             
             // Add order note
             $order->add_order_note(
-                __('Failed to process refund: ', 'kra-etims-integration') . 
+                __('Failed to process refund: ', 'kra-etims-connector') . 
                 $e->getMessage()
             );
             

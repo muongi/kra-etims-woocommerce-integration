@@ -141,7 +141,7 @@ class KRA_eTims_WC_Product_Handler {
             // Add error notice
             $this->add_admin_notice(
                 sprintf(
-                    __('Product "%s" must be assigned to a category to inherit KRA eTims data. Please assign a category and save again.', 'kra-etims-integration'),
+                    __('Product "%s" must be assigned to a category to inherit KRA eTims data. Please assign a category and save again.', 'kra-etims-connector'),
                     $product->get_name()
                 ),
                 'error'
@@ -181,7 +181,7 @@ class KRA_eTims_WC_Product_Handler {
             // Add error notice
             $this->add_admin_notice(
                 sprintf(
-                    __('Product "%s" must be assigned to a category to inherit KRA eTims data. Please assign a category and save again.', 'kra-etims-integration'),
+                    __('Product "%s" must be assigned to a category to inherit KRA eTims data. Please assign a category and save again.', 'kra-etims-connector'),
                     $product->get_name()
                 ),
                 'error'
@@ -326,12 +326,12 @@ class KRA_eTims_WC_Product_Handler {
                 
                 // Add product note
                 $note_parts = array(
-                    sprintf(__('Product successfully %s to API.', 'kra-etims-integration'), $action === 'create' ? 'sent' : 'updated'),
-                    sprintf(__('Injonge Code: %s', 'kra-etims-integration'), $injonge_code)
+                    sprintf(__('Product successfully %s to API.', 'kra-etims-connector'), $action === 'create' ? 'sent' : 'updated'),
+                    sprintf(__('Injonge Code: %s', 'kra-etims-connector'), $injonge_code)
                 );
                 
                 if (!empty($sid)) {
-                    $note_parts[] = sprintf(__('SID: %s', 'kra-etims-integration'), $sid);
+                    $note_parts[] = sprintf(__('SID: %s', 'kra-etims-connector'), $sid);
                 }
                 
                 $note = implode(' ', $note_parts);
@@ -360,7 +360,7 @@ class KRA_eTims_WC_Product_Handler {
             
             // Add error note
             $error_note = sprintf(
-                __('Failed to %s product to API: %s', 'kra-etims-integration'),
+                __('Failed to %s product to API: %s', 'kra-etims-connector'),
                 $action === 'create' ? 'send' : 'update',
                 $e->getMessage()
             );
@@ -465,8 +465,8 @@ class KRA_eTims_WC_Product_Handler {
         
         if (!$has_categories) {
             echo '<div class="notice notice-warning" style="margin: 10px 0;">';
-            echo '<p><strong>' . __('⚠️ Category Required', 'kra-etims-integration') . '</strong></p>';
-            echo '<p>' . __('This product must be assigned to a category to inherit KRA eTims data (UNSPSC Code and Category SID). Please assign a category first.', 'kra-etims-integration') . '</p>';
+            echo '<p><strong>' . __('⚠️ Category Required', 'kra-etims-connector') . '</strong></p>';
+            echo '<p>' . __('This product must be assigned to a category to inherit KRA eTims data (UNSPSC Code and Category SID). Please assign a category first.', 'kra-etims-connector') . '</p>';
             echo '</div>';
         }
         
@@ -481,29 +481,29 @@ class KRA_eTims_WC_Product_Handler {
         
         woocommerce_wp_text_input(array(
             'id' => '_injonge_unspec',
-            'label' => __('UNSPSC Code', 'kra-etims-integration'),
+            'label' => __('UNSPSC Code', 'kra-etims-connector'),
             'placeholder' => $category_unspec ?: '4111460100',
             'value' => $unspec,
             'desc_tip' => true,
             'description' => $has_categories 
-                ? __('UNSPSC code for the product. Auto-populated from category if available.', 'kra-etims-integration')
-                : __('UNSPSC code for the product. Will be auto-populated when a category is assigned.', 'kra-etims-integration'),
+                ? __('UNSPSC code for the product. Auto-populated from category if available.', 'kra-etims-connector')
+                : __('UNSPSC code for the product. Will be auto-populated when a category is assigned.', 'kra-etims-connector'),
             'custom_attributes' => $has_categories ? array() : array('readonly' => 'readonly')
         ));
         
         // Tax ID (updated to A,B,C,D)
         woocommerce_wp_select(array(
             'id' => '_injonge_taxid',
-            'label' => __('Tax ID', 'kra-etims-integration'),
+            'label' => __('Tax ID', 'kra-etims-connector'),
             'options' => array(
-                '' => __('Select Tax Type', 'kra-etims-integration'),
+                '' => __('Select Tax Type', 'kra-etims-connector'),
                 'A' => 'A - Exempt (0%)',
                 'B' => 'B - VAT (16%)',
                 'C' => 'C - Export (0%)',
                 'D' => 'D - Non VAT (0%)'
             ),
             'desc_tip' => true,
-            'description' => __('Tax classification for the product. This is mandatory for KRA eTims compliance.', 'kra-etims-integration')
+            'description' => __('Tax classification for the product. This is mandatory for KRA eTims compliance.', 'kra-etims-connector')
         ));
         
         // Category SID (auto-populated from category)
@@ -517,39 +517,39 @@ class KRA_eTims_WC_Product_Handler {
         
         woocommerce_wp_text_input(array(
             'id' => '_injonge_category_sid',
-            'label' => __('Category SID', 'kra-etims-integration'),
+            'label' => __('Category SID', 'kra-etims-connector'),
             'placeholder' => $category_sid_from_category ?: 'Auto from category',
             'value' => $category_sid,
             'desc_tip' => true,
             'description' => $has_categories 
-                ? __('Category Server ID. Auto-populated from category if available.', 'kra-etims-integration')
-                : __('Category Server ID. Will be auto-populated when a category is assigned.', 'kra-etims-integration'),
+                ? __('Category Server ID. Auto-populated from category if available.', 'kra-etims-connector')
+                : __('Category Server ID. Will be auto-populated when a category is assigned.', 'kra-etims-connector'),
             'custom_attributes' => $has_categories ? array() : array('readonly' => 'readonly')
         ));
         
         // Stockable
         woocommerce_wp_checkbox(array(
             'id' => '_injonge_stockable',
-            'label' => __('Stockable', 'kra-etims-integration'),
+            'label' => __('Stockable', 'kra-etims-connector'),
             'desc_tip' => true,
-            'description' => __('Whether this product is stockable', 'kra-etims-integration')
+            'description' => __('Whether this product is stockable', 'kra-etims-connector')
         ));
         
         // Opening Stock
         woocommerce_wp_text_input(array(
             'id' => '_injonge_opening_stock',
-            'label' => __('Opening Stock', 'kra-etims-integration'),
+            'label' => __('Opening Stock', 'kra-etims-connector'),
             'type' => 'number',
             'placeholder' => '0',
             'desc_tip' => true,
-            'description' => __('Initial stock quantity', 'kra-etims-integration')
+            'description' => __('Initial stock quantity', 'kra-etims-connector')
         ));
         
         // Display current injonge code if exists
         $injonge_code = get_post_meta($post->ID, '_injonge_code', true);
         if ($injonge_code) {
             echo '<p class="form-field">';
-            echo '<label>' . __('Current Injonge Code', 'kra-etims-integration') . '</label>';
+            echo '<label>' . __('Current Injonge Code', 'kra-etims-connector') . '</label>';
             echo '<input type="text" value="' . esc_attr($injonge_code) . '" readonly style="background-color: #f0f0f0;" />';
             echo '</p>';
         }
@@ -560,7 +560,7 @@ class KRA_eTims_WC_Product_Handler {
         
         if ($last_sync) {
             echo '<p class="form-field">';
-            echo '<label>' . __('Last API Sync', 'kra-etims-integration') . '</label>';
+            echo '<label>' . __('Last API Sync', 'kra-etims-connector') . '</label>';
             echo '<input type="text" value="' . esc_attr($last_sync) . ' (' . esc_attr($sync_status) . ')" readonly style="background-color: #f0f0f0;" />';
             echo '</p>';
         }
@@ -572,10 +572,10 @@ class KRA_eTims_WC_Product_Handler {
             $category_sid = $this->category_handler->get_category_server_id($primary_category->term_id);
             
             echo '<div class="form-field" style="background-color: #f9f9f9; padding: 10px; border-left: 4px solid #0073aa;">';
-            echo '<label style="font-weight: bold;">' . __('Category Information', 'kra-etims-integration') . '</label>';
-            echo '<p style="margin: 5px 0;"><strong>' . __('Category:', 'kra-etims-integration') . '</strong> ' . esc_html($primary_category->name) . '</p>';
-            echo '<p style="margin: 5px 0;"><strong>' . __('Item Code:', 'kra-etims-integration') . '</strong> ' . (empty($category_unspec) ? '<span style="color: red;">Not set</span>' : esc_html($category_unspec)) . '</p>';
-            echo '<p style="margin: 5px 0;"><strong>' . __('Server ID:', 'kra-etims-integration') . '</strong> ' . (empty($category_sid) ? '<span style="color: red;">Not set</span>' : esc_html($category_sid)) . '</p>';
+            echo '<label style="font-weight: bold;">' . __('Category Information', 'kra-etims-connector') . '</label>';
+            echo '<p style="margin: 5px 0;"><strong>' . __('Category:', 'kra-etims-connector') . '</strong> ' . esc_html($primary_category->name) . '</p>';
+            echo '<p style="margin: 5px 0;"><strong>' . __('Item Code:', 'kra-etims-connector') . '</strong> ' . (empty($category_unspec) ? '<span style="color: red;">Not set</span>' : esc_html($category_unspec)) . '</p>';
+            echo '<p style="margin: 5px 0;"><strong>' . __('Server ID:', 'kra-etims-connector') . '</strong> ' . (empty($category_sid) ? '<span style="color: red;">Not set</span>' : esc_html($category_sid)) . '</p>';
             echo '</div>';
         }
         
@@ -625,10 +625,10 @@ class KRA_eTims_WC_Product_Handler {
         foreach ($columns as $key => $value) {
             $new_columns[$key] = $value;
             if ($key === 'price') {
-                $new_columns['category_status'] = __('Category Status', 'kra-etims-integration');
-                $new_columns['injonge_code'] = __('Injonge Code', 'kra-etims-integration');
-                $new_columns['tax_type'] = __('Tax Type', 'kra-etims-integration');
-                $new_columns['api_status'] = __('API Status', 'kra-etims-integration');
+                $new_columns['category_status'] = __('Category Status', 'kra-etims-connector');
+                $new_columns['injonge_code'] = __('Injonge Code', 'kra-etims-connector');
+                $new_columns['tax_type'] = __('Tax Type', 'kra-etims-connector');
+                $new_columns['api_status'] = __('API Status', 'kra-etims-connector');
             }
         }
         
@@ -648,7 +648,7 @@ class KRA_eTims_WC_Product_Handler {
                 if ($product) {
                     $category_ids = $product->get_category_ids();
                     if (empty($category_ids)) {
-                        echo '<span style="color: red;">❌ ' . __('No Category', 'kra-etims-integration') . '</span>';
+                        echo '<span style="color: red;">❌ ' . __('No Category', 'kra-etims-connector') . '</span>';
                     } else {
                         $primary_category_id = $category_ids[0];
                         $category = get_term($primary_category_id, 'product_cat');
@@ -656,9 +656,9 @@ class KRA_eTims_WC_Product_Handler {
                         $category_sid = $this->category_handler->get_category_server_id($primary_category_id);
                         
                         if (empty($category_unspec)) {
-                            echo '<span style="color: orange;">⚠️ ' . __('No Item Code', 'kra-etims-integration') . '</span>';
+                            echo '<span style="color: orange;">⚠️ ' . __('No Item Code', 'kra-etims-connector') . '</span>';
                         } elseif (empty($category_sid)) {
-                            echo '<span style="color: orange;">⚠️ ' . __('No SID', 'kra-etims-integration') . '</span>';
+                            echo '<span style="color: orange;">⚠️ ' . __('No SID', 'kra-etims-connector') . '</span>';
                         } else {
                             echo '<span style="color: green;">✅ ' . esc_html($category ? $category->name : 'Unknown') . '</span>';
                         }
@@ -683,7 +683,7 @@ class KRA_eTims_WC_Product_Handler {
                     $tax_info = $this->tax_types[$taxid];
                     echo '<span title="' . esc_attr($tax_info['description']) . '">' . esc_html($tax_info['name']) . '</span>';
                 } else {
-                    echo '<span style="color: red;">⚠️ ' . __('Not Set', 'kra-etims-integration') . '</span>';
+                    echo '<span style="color: red;">⚠️ ' . __('Not Set', 'kra-etims-connector') . '</span>';
                 }
                 break;
                 
@@ -692,9 +692,9 @@ class KRA_eTims_WC_Product_Handler {
                 $last_sync = get_post_meta($post_id, '_injonge_last_sync', true);
                 
                 if ($status === 'success') {
-                    echo '<span style="color: green;">✅ ' . __('Synced', 'kra-etims-integration') . '</span>';
+                    echo '<span style="color: green;">✅ ' . __('Synced', 'kra-etims-connector') . '</span>';
                 } elseif ($status === 'failed') {
-                    echo '<span style="color: red;">❌ ' . __('Failed', 'kra-etims-integration') . '</span>';
+                    echo '<span style="color: red;">❌ ' . __('Failed', 'kra-etims-connector') . '</span>';
                 } else {
                     echo '<span style="color: #999;">—</span>';
                 }
@@ -731,23 +731,23 @@ class KRA_eTims_WC_Product_Handler {
         
         // Check if unspec code is set
         if (empty($unspec)) {
-            $errors[] = __('UNSPSC Code is required. Please assign the product to a category with an item code.', 'kra-etims-integration');
+            $errors[] = __('UNSPSC Code is required. Please assign the product to a category with an item code.', 'kra-etims-connector');
         }
         
         // Check if category SID is set
         if (empty($category_sid)) {
-            $errors[] = __('Category SID is required. Please assign the product to a category that has been sent to the API.', 'kra-etims-integration');
+            $errors[] = __('Category SID is required. Please assign the product to a category that has been sent to the API.', 'kra-etims-connector');
         }
         
         // Check if tax type is set
         if (empty($taxid)) {
-            $errors[] = __('Tax Type is required. Please select a tax type (A, B, C, or D).', 'kra-etims-integration');
+            $errors[] = __('Tax Type is required. Please select a tax type (A, B, C, or D).', 'kra-etims-connector');
         }
         
         // If there are errors, add admin notice
         if (!empty($errors)) {
             $error_message = sprintf(
-                __('Product "%s" has missing KRA eTims data: %s', 'kra-etims-integration'),
+                __('Product "%s" has missing KRA eTims data: %s', 'kra-etims-connector'),
                 $product->get_name(),
                 implode(', ', $errors)
             );
@@ -774,7 +774,7 @@ class KRA_eTims_WC_Product_Handler {
         if (empty($category_ids)) {
             $this->add_validation_error(
                 sprintf(
-                    __('Product "%s" must be assigned to a category to inherit KRA eTims data. Please assign a category and save again.', 'kra-etims-integration'),
+                    __('Product "%s" must be assigned to a category to inherit KRA eTims data. Please assign a category and save again.', 'kra-etims-connector'),
                     $product->get_name()
                 )
             );
@@ -790,7 +790,7 @@ class KRA_eTims_WC_Product_Handler {
             $category = get_term($primary_category_id, 'product_cat');
             $this->add_validation_error(
                 sprintf(
-                    __('Category "%s" does not have an item code set. Please set an item code for the category first.', 'kra-etims-integration'),
+                    __('Category "%s" does not have an item code set. Please set an item code for the category first.', 'kra-etims-connector'),
                     $category ? $category->name : 'Unknown'
                 )
             );
@@ -800,7 +800,7 @@ class KRA_eTims_WC_Product_Handler {
             $category = get_term($primary_category_id, 'product_cat');
             $this->add_validation_error(
                 sprintf(
-                    __('Category "%s" has not been sent to the API yet. Please ensure the category is properly configured and sent to the API.', 'kra-etims-integration'),
+                    __('Category "%s" has not been sent to the API yet. Please ensure the category is properly configured and sent to the API.', 'kra-etims-connector'),
                     $category ? $category->name : 'Unknown'
                 )
             );

@@ -52,8 +52,8 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
     public function add_admin_menu() {
         add_submenu_page(
             'kra-etims-wc',
-            __('Bulk Tax Update', 'kra-etims-integration'),
-            __('Bulk Tax Update', 'kra-etims-integration'),
+            __('Bulk Tax Update', 'kra-etims-connector'),
+            __('Bulk Tax Update', 'kra-etims-connector'),
             'manage_woocommerce',
             'kra-etims-bulk-tax-update',
             array($this, 'render_bulk_update_page')
@@ -74,48 +74,48 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
         $stats = $this->get_tax_statistics();
         ?>
         <div class="wrap">
-            <h1><?php _e('KRA Tax Bulk Update Tool', 'kra-etims-integration'); ?></h1>
+            <h1><?php _e('KRA Tax Bulk Update Tool', 'kra-etims-connector'); ?></h1>
             
             <?php if (isset($_GET['updated']) && $_GET['updated'] > 0): ?>
                 <div class="notice notice-success is-dismissible">
-                    <p><strong><?php printf(__('Successfully updated %d products!', 'kra-etims-integration'), intval($_GET['updated'])); ?></strong></p>
+                    <p><strong><?php printf(__('Successfully updated %d products!', 'kra-etims-connector'), intval($_GET['updated'])); ?></strong></p>
                 </div>
             <?php endif; ?>
 
             <!-- Statistics Section -->
             <div class="kra-etims-stats-section" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-radius: 4px;">
-                <h2 style="margin-top: 0;"><?php _e('Current Tax Status', 'kra-etims-integration'); ?></h2>
+                <h2 style="margin-top: 0;"><?php _e('Current Tax Status', 'kra-etims-connector'); ?></h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     <div style="background: #f0f6fc; padding: 15px; border-radius: 4px;">
                         <strong style="color: #0073aa; font-size: 24px;"><?php echo $stats['total_products']; ?></strong>
-                        <p style="margin: 5px 0 0 0;"><?php _e('Total Products', 'kra-etims-integration'); ?></p>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Total Products', 'kra-etims-connector'); ?></p>
                     </div>
                     <div style="background: #e8f5e9; padding: 15px; border-radius: 4px;">
                         <strong style="color: #46b450; font-size: 24px;"><?php echo $stats['tax_b']; ?></strong>
-                        <p style="margin: 5px 0 0 0;"><?php _e('Tax B (VAT 16%)', 'kra-etims-integration'); ?></p>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Tax B (VAT 16%)', 'kra-etims-connector'); ?></p>
                     </div>
                     <div style="background: #fff3e0; padding: 15px; border-radius: 4px;">
                         <strong style="color: #dba617; font-size: 24px;"><?php echo $stats['tax_a']; ?></strong>
-                        <p style="margin: 5px 0 0 0;"><?php _e('Tax A (Exempt)', 'kra-etims-integration'); ?></p>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Tax A (Exempt)', 'kra-etims-connector'); ?></p>
                     </div>
                     <div style="background: #fce4ec; padding: 15px; border-radius: 4px;">
                         <strong style="color: #826eb4; font-size: 24px;"><?php echo $stats['tax_c']; ?></strong>
-                        <p style="margin: 5px 0 0 0;"><?php _e('Tax C (Export)', 'kra-etims-integration'); ?></p>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Tax C (Export)', 'kra-etims-connector'); ?></p>
                     </div>
                     <div style="background: #ffebee; padding: 15px; border-radius: 4px;">
                         <strong style="color: #d63638; font-size: 24px;"><?php echo $stats['tax_d']; ?></strong>
-                        <p style="margin: 5px 0 0 0;"><?php _e('Tax D (Non-VAT)', 'kra-etims-integration'); ?></p>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Tax D (Non-VAT)', 'kra-etims-connector'); ?></p>
                     </div>
                     <div style="background: #f5f5f5; padding: 15px; border-radius: 4px;">
                         <strong style="color: #999; font-size: 24px;"><?php echo $stats['not_set']; ?></strong>
-                        <p style="margin: 5px 0 0 0;"><?php _e('Not Set', 'kra-etims-integration'); ?></p>
+                        <p style="margin: 5px 0 0 0;"><?php _e('Not Set', 'kra-etims-connector'); ?></p>
                     </div>
                 </div>
             </div>
 
             <!-- Bulk Update Form -->
             <div class="kra-etims-bulk-update-section" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-radius: 4px;">
-                <h2 style="margin-top: 0;"><?php _e('Bulk Update Options', 'kra-etims-integration'); ?></h2>
+                <h2 style="margin-top: 0;"><?php _e('Bulk Update Options', 'kra-etims-connector'); ?></h2>
                 
                 <form id="kra-etims-bulk-update-form">
                     <?php wp_nonce_field('kra_etims_bulk_update', 'kra_etims_bulk_update_nonce'); ?>
@@ -124,24 +124,24 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
                     <table class="form-table">
                         <tr>
                             <th scope="row">
-                                <label for="update_method"><?php _e('Update Method', 'kra-etims-integration'); ?></label>
+                                <label for="update_method"><?php _e('Update Method', 'kra-etims-connector'); ?></label>
                             </th>
                             <td>
                                 <select id="update_method" name="update_method" style="width: 100%; max-width: 400px;">
-                                    <option value="all"><?php _e('All Products', 'kra-etims-integration'); ?></option>
-                                    <option value="category"><?php _e('By Category', 'kra-etims-integration'); ?></option>
-                                    <option value="no_tax_type"><?php _e('Products Without Tax Type', 'kra-etims-integration'); ?></option>
-                                    <option value="specific_tax_type"><?php _e('Products with Specific Tax Type', 'kra-etims-integration'); ?></option>
-                                    <option value="specific_ids"><?php _e('Specific Product IDs', 'kra-etims-integration'); ?></option>
+                                    <option value="all"><?php _e('All Products', 'kra-etims-connector'); ?></option>
+                                    <option value="category"><?php _e('By Category', 'kra-etims-connector'); ?></option>
+                                    <option value="no_tax_type"><?php _e('Products Without Tax Type', 'kra-etims-connector'); ?></option>
+                                    <option value="specific_tax_type"><?php _e('Products with Specific Tax Type', 'kra-etims-connector'); ?></option>
+                                    <option value="specific_ids"><?php _e('Specific Product IDs', 'kra-etims-connector'); ?></option>
                                 </select>
-                                <p class="description"><?php _e('Choose which products to update', 'kra-etims-integration'); ?></p>
+                                <p class="description"><?php _e('Choose which products to update', 'kra-etims-connector'); ?></p>
                             </td>
                         </tr>
 
                         <!-- Category Selection (shown when category method selected) -->
                         <tr id="category_selection" style="display: none;">
                             <th scope="row">
-                                <label for="category_ids"><?php _e('Select Categories', 'kra-etims-integration'); ?></label>
+                                <label for="category_ids"><?php _e('Select Categories', 'kra-etims-connector'); ?></label>
                             </th>
                             <td>
                                 <select id="category_ids" name="category_ids[]" multiple style="width: 100%; max-width: 400px; height: 150px;">
@@ -151,88 +151,88 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
-                                <p class="description"><?php _e('Hold Ctrl/Cmd to select multiple categories', 'kra-etims-integration'); ?></p>
+                                <p class="description"><?php _e('Hold Ctrl/Cmd to select multiple categories', 'kra-etims-connector'); ?></p>
                             </td>
                         </tr>
 
                         <!-- Current Tax Type Selection -->
                         <tr id="current_tax_type_selection" style="display: none;">
                             <th scope="row">
-                                <label for="current_tax_type"><?php _e('Current Tax Type', 'kra-etims-integration'); ?></label>
+                                <label for="current_tax_type"><?php _e('Current Tax Type', 'kra-etims-connector'); ?></label>
                             </th>
                             <td>
                                 <select id="current_tax_type" name="current_tax_type" style="width: 100%; max-width: 400px;">
-                                    <option value="A"><?php _e('A - Exempt (0%)', 'kra-etims-integration'); ?></option>
-                                    <option value="B" selected><?php _e('B - VAT 16%', 'kra-etims-integration'); ?></option>
-                                    <option value="C"><?php _e('C - Export (0%)', 'kra-etims-integration'); ?></option>
-                                    <option value="D"><?php _e('D - Non-VAT (0%)', 'kra-etims-integration'); ?></option>
-                                    <option value="none"><?php _e('Not Set', 'kra-etims-integration'); ?></option>
+                                    <option value="A"><?php _e('A - Exempt (0%)', 'kra-etims-connector'); ?></option>
+                                    <option value="B" selected><?php _e('B - VAT 16%', 'kra-etims-connector'); ?></option>
+                                    <option value="C"><?php _e('C - Export (0%)', 'kra-etims-connector'); ?></option>
+                                    <option value="D"><?php _e('D - Non-VAT (0%)', 'kra-etims-connector'); ?></option>
+                                    <option value="none"><?php _e('Not Set', 'kra-etims-connector'); ?></option>
                                 </select>
-                                <p class="description"><?php _e('Select products that currently have this tax type', 'kra-etims-integration'); ?></p>
+                                <p class="description"><?php _e('Select products that currently have this tax type', 'kra-etims-connector'); ?></p>
                             </td>
                         </tr>
 
                         <!-- Product IDs Selection -->
                         <tr id="product_ids_selection" style="display: none;">
                             <th scope="row">
-                                <label for="product_ids"><?php _e('Product IDs', 'kra-etims-integration'); ?></label>
+                                <label for="product_ids"><?php _e('Product IDs', 'kra-etims-connector'); ?></label>
                             </th>
                             <td>
                                 <input type="text" id="product_ids" name="product_ids" style="width: 100%; max-width: 400px;" 
-                                       placeholder="<?php _e('e.g., 123, 456, 789', 'kra-etims-integration'); ?>">
-                                <p class="description"><?php _e('Enter product IDs separated by commas', 'kra-etims-integration'); ?></p>
+                                       placeholder="<?php _e('e.g., 123, 456, 789', 'kra-etims-connector'); ?>">
+                                <p class="description"><?php _e('Enter product IDs separated by commas', 'kra-etims-connector'); ?></p>
                             </td>
                         </tr>
 
                         <!-- New Tax Type -->
                         <tr>
                             <th scope="row">
-                                <label for="new_tax_type"><?php _e('New Tax Type', 'kra-etims-integration'); ?></label>
+                                <label for="new_tax_type"><?php _e('New Tax Type', 'kra-etims-connector'); ?></label>
                             </th>
                             <td>
                                 <select id="new_tax_type" name="new_tax_type" required style="width: 100%; max-width: 400px;">
-                                    <option value=""><?php _e('-- Select Tax Type --', 'kra-etims-integration'); ?></option>
-                                    <option value="B"><?php _e('B - VAT 16%', 'kra-etims-integration'); ?></option>
-                                    <option value="A"><?php _e('A - Exempt (0%)', 'kra-etims-integration'); ?></option>
-                                    <option value="C"><?php _e('C - Export (0%)', 'kra-etims-integration'); ?></option>
-                                    <option value="D"><?php _e('D - Non-VAT (0%)', 'kra-etims-integration'); ?></option>
+                                    <option value=""><?php _e('-- Select Tax Type --', 'kra-etims-connector'); ?></option>
+                                    <option value="B"><?php _e('B - VAT 16%', 'kra-etims-connector'); ?></option>
+                                    <option value="A"><?php _e('A - Exempt (0%)', 'kra-etims-connector'); ?></option>
+                                    <option value="C"><?php _e('C - Export (0%)', 'kra-etims-connector'); ?></option>
+                                    <option value="D"><?php _e('D - Non-VAT (0%)', 'kra-etims-connector'); ?></option>
                                 </select>
-                                <p class="description"><?php _e('Select the tax type to apply to selected products', 'kra-etims-integration'); ?></p>
+                                <p class="description"><?php _e('Select the tax type to apply to selected products', 'kra-etims-connector'); ?></p>
                             </td>
                         </tr>
 
                         <!-- Also Update Tax Class -->
                         <tr>
                             <th scope="row">
-                                <label for="update_tax_class"><?php _e('Also Update Tax Class', 'kra-etims-integration'); ?></label>
+                                <label for="update_tax_class"><?php _e('Also Update Tax Class', 'kra-etims-connector'); ?></label>
                             </th>
                             <td>
                                 <label>
                                     <input type="checkbox" id="update_tax_class" name="update_tax_class" value="1" checked>
-                                    <?php _e('Automatically sync WooCommerce tax class with KRA tax type', 'kra-etims-integration'); ?>
+                                    <?php _e('Automatically sync WooCommerce tax class with KRA tax type', 'kra-etims-connector'); ?>
                                 </label>
-                                <p class="description"><?php _e('If checked, the WooCommerce tax class will be updated to match the KRA tax type', 'kra-etims-integration'); ?></p>
+                                <p class="description"><?php _e('If checked, the WooCommerce tax class will be updated to match the KRA tax type', 'kra-etims-connector'); ?></p>
                             </td>
                         </tr>
                     </table>
 
                     <!-- Preview Section -->
                     <div id="preview-section" style="display: none; margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 4px;">
-                        <h3><?php _e('Preview', 'kra-etims-integration'); ?></h3>
+                        <h3><?php _e('Preview', 'kra-etims-connector'); ?></h3>
                         <div id="preview-content"></div>
                         <p id="preview-loading" style="display: none;">
                             <span class="spinner is-active" style="float: none; margin: 0 10px 0 0;"></span>
-                            <?php _e('Loading preview...', 'kra-etims-integration'); ?>
+                            <?php _e('Loading preview...', 'kra-etims-connector'); ?>
                         </p>
                     </div>
 
                     <!-- Action Buttons -->
                     <p class="submit">
                         <button type="button" id="preview-btn" class="button button-secondary">
-                            <?php _e('Preview Affected Products', 'kra-etims-integration'); ?>
+                            <?php _e('Preview Affected Products', 'kra-etims-connector'); ?>
                         </button>
                         <button type="button" id="execute-btn" class="button button-primary" style="display: none;">
-                            <?php _e('Execute Bulk Update', 'kra-etims-integration'); ?>
+                            <?php _e('Execute Bulk Update', 'kra-etims-connector'); ?>
                         </button>
                     </p>
 
@@ -248,7 +248,7 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
 
                     <!-- Results Section -->
                     <div id="results-section" style="display: none; margin: 20px 0; padding: 15px; background: #e8f5e9; border: 1px solid #46b450; border-radius: 4px;">
-                        <h3 style="color: #46b450; margin-top: 0;"><?php _e('Update Completed!', 'kra-etims-integration'); ?></h3>
+                        <h3 style="color: #46b450; margin-top: 0;"><?php _e('Update Completed!', 'kra-etims-connector'); ?></h3>
                         <div id="results-content"></div>
                     </div>
                 </form>
@@ -256,15 +256,15 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
 
             <!-- Help Section -->
             <div class="kra-etims-help-section" style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-radius: 4px;">
-                <h2><?php _e('Help & Information', 'kra-etims-integration'); ?></h2>
+                <h2><?php _e('Help & Information', 'kra-etims-connector'); ?></h2>
                 <ul>
-                    <li><strong><?php _e('All Products:', 'kra-etims-integration'); ?></strong> <?php _e('Updates every published product in your store', 'kra-etims-integration'); ?></li>
-                    <li><strong><?php _e('By Category:', 'kra-etims-integration'); ?></strong> <?php _e('Updates only products in selected categories', 'kra-etims-integration'); ?></li>
-                    <li><strong><?php _e('Products Without Tax Type:', 'kra-etims-integration'); ?></strong> <?php _e('Updates only products that don\'t have a KRA tax type set', 'kra-etims-integration'); ?></li>
-                    <li><strong><?php _e('Products with Specific Tax Type:', 'kra-etims-integration'); ?></strong> <?php _e('Updates only products that currently have the selected tax type', 'kra-etims-integration'); ?></li>
-                    <li><strong><?php _e('Specific Product IDs:', 'kra-etims-integration'); ?></strong> <?php _e('Updates only the products with the specified IDs', 'kra-etims-integration'); ?></li>
+                    <li><strong><?php _e('All Products:', 'kra-etims-connector'); ?></strong> <?php _e('Updates every published product in your store', 'kra-etims-connector'); ?></li>
+                    <li><strong><?php _e('By Category:', 'kra-etims-connector'); ?></strong> <?php _e('Updates only products in selected categories', 'kra-etims-connector'); ?></li>
+                    <li><strong><?php _e('Products Without Tax Type:', 'kra-etims-connector'); ?></strong> <?php _e('Updates only products that don\'t have a KRA tax type set', 'kra-etims-connector'); ?></li>
+                    <li><strong><?php _e('Products with Specific Tax Type:', 'kra-etims-connector'); ?></strong> <?php _e('Updates only products that currently have the selected tax type', 'kra-etims-connector'); ?></li>
+                    <li><strong><?php _e('Specific Product IDs:', 'kra-etims-connector'); ?></strong> <?php _e('Updates only the products with the specified IDs', 'kra-etims-connector'); ?></li>
                 </ul>
-                <p><strong><?php _e('⚠️ Important:', 'kra-etims-integration'); ?></strong> <?php _e('Always preview before executing. Consider backing up your database for large updates.', 'kra-etims-integration'); ?></p>
+                <p><strong><?php _e('⚠️ Important:', 'kra-etims-connector'); ?></strong> <?php _e('Always preview before executing. Consider backing up your database for large updates.', 'kra-etims-connector'); ?></p>
             </div>
         </div>
 
@@ -331,7 +331,7 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
                             } else {
                                 $('#execute-btn').hide();
                                 $('#preview-content').append('<p style="color: #d63638;"><strong>' + 
-                                    '<?php _e('No products found matching your criteria.', 'kra-etims-integration'); ?>' + 
+                                    '<?php _e('No products found matching your criteria.', 'kra-etims-connector'); ?>' + 
                                     '</strong></p>');
                             }
                         } else {
@@ -347,7 +347,7 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
 
             // Execute button
             $('#execute-btn').on('click', function() {
-                if (!confirm('<?php _e('Are you sure you want to update these products? This action cannot be undone.', 'kra-etims-integration'); ?>')) {
+                if (!confirm('<?php _e('Are you sure you want to update these products? This action cannot be undone.', 'kra-etims-connector'); ?>')) {
                     return;
                 }
 
@@ -377,7 +377,7 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
                         
                         if (response.success) {
                             $('#progress-bar').css('width', '100%').text('100%');
-                            $('#progress-text').text('<?php _e('Update completed!', 'kra-etims-integration'); ?>');
+                            $('#progress-text').text('<?php _e('Update completed!', 'kra-etims-connector'); ?>');
                             $('#results-section').show();
                             $('#results-content').html(response.data.html);
                             
@@ -484,7 +484,7 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
         $products = $this->get_affected_products($update_method, $category_ids, $current_tax_type, $product_ids);
 
         // Build preview HTML
-        $html = '<p><strong>' . sprintf(__('Found %d products that will be updated:', 'kra-etims-integration'), count($products)) . '</strong></p>';
+        $html = '<p><strong>' . sprintf(__('Found %d products that will be updated:', 'kra-etims-connector'), count($products)) . '</strong></p>';
         
         if (count($products) > 0) {
             $html .= '<div class="kra-etims-product-preview">';
@@ -492,12 +492,12 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
                 $current = get_post_meta($product->ID, '_injonge_taxid', true);
                 $html .= '<div class="kra-etims-product-item">';
                 $html .= '<strong>ID ' . $product->ID . ':</strong> ' . esc_html($product->post_title);
-                $html .= ' <span style="color: #999;">(' . ($current ?: __('Not Set', 'kra-etims-integration')) . ' → ' . $new_tax_type . ')</span>';
+                $html .= ' <span style="color: #999;">(' . ($current ?: __('Not Set', 'kra-etims-connector')) . ' → ' . $new_tax_type . ')</span>';
                 $html .= '</div>';
             }
             if (count($products) > 50) {
                 $html .= '<div class="kra-etims-product-item" style="color: #999;">';
-                $html .= sprintf(__('... and %d more products', 'kra-etims-integration'), count($products) - 50);
+                $html .= sprintf(__('... and %d more products', 'kra-etims-connector'), count($products) - 50);
                 $html .= '</div>';
             }
             $html .= '</div>';
@@ -541,14 +541,14 @@ class KRA_eTims_WC_Bulk_Tax_Updater {
         $updated = $this->execute_bulk_update($products, $new_tax_type, $update_tax_class);
 
         // Build results HTML
-        $html = '<p><strong>' . sprintf(__('Successfully updated %d products!', 'kra-etims-integration'), $updated['success']) . '</strong></p>';
+        $html = '<p><strong>' . sprintf(__('Successfully updated %d products!', 'kra-etims-connector'), $updated['success']) . '</strong></p>';
         
         if ($updated['updated_tax_class'] > 0) {
-            $html .= '<p>' . sprintf(__('Also updated WooCommerce tax class for %d products.', 'kra-etims-integration'), $updated['updated_tax_class']) . '</p>';
+            $html .= '<p>' . sprintf(__('Also updated WooCommerce tax class for %d products.', 'kra-etims-connector'), $updated['updated_tax_class']) . '</p>';
         }
 
         if ($updated['failed'] > 0) {
-            $html .= '<p style="color: #d63638;">' . sprintf(__('Failed to update %d products.', 'kra-etims-integration'), $updated['failed']) . '</p>';
+            $html .= '<p style="color: #d63638;">' . sprintf(__('Failed to update %d products.', 'kra-etims-connector'), $updated['failed']) . '</p>';
         }
 
         wp_send_json_success(array(

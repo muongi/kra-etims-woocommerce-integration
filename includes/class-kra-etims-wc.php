@@ -183,7 +183,7 @@ class KRA_eTims_WC {
      * @return array
      */
     public function add_order_actions($actions) {
-        $actions['kra_etims_submit'] = __('Submit to KRA eTims', 'kra-etims-integration');
+        $actions['kra_etims_submit'] = __('Submit to KRA eTims', 'kra-etims-connector');
         return $actions;
     }
 
@@ -207,7 +207,7 @@ class KRA_eTims_WC {
         if ($post_type === 'shop_order') {
             add_meta_box(
                 'kra_etims_wc_order_meta_box',
-                __('KRA eTims Integration', 'kra-etims-integration'),
+                __('KRA eTims Integration', 'kra-etims-connector'),
                 array($this, 'render_order_meta_box'),
                 'shop_order',
                 'side',
@@ -238,8 +238,8 @@ class KRA_eTims_WC {
         ?>
         <div class="kra-etims-wc-order-meta-box">
             <p>
-                <strong><?php _e('Custom API Status:', 'kra-etims-integration'); ?></strong>
-                <?php echo $custom_api_status ? esc_html($custom_api_status) : __('Not submitted', 'kra-etims-integration'); ?>
+                <strong><?php _e('Custom API Status:', 'kra-etims-connector'); ?></strong>
+                <?php echo $custom_api_status ? esc_html($custom_api_status) : __('Not submitted', 'kra-etims-connector'); ?>
             </p>
             
             <?php 
@@ -248,44 +248,44 @@ class KRA_eTims_WC {
             if ($customer_tin) : 
             ?>
             <p>
-                <strong><?php _e('Customer TIN:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Customer TIN:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($customer_tin); ?>
             </p>
             <?php endif; ?>
             
             <?php if ($custom_api_invoice_no) : ?>
             <p>
-                <strong><?php _e('Invoice No:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Invoice No:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($custom_api_invoice_no); ?>
             </p>
             <?php endif; ?>
             
             <?php if ($receipt_number) : ?>
             <p>
-                <strong><?php _e('Receipt No:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Receipt No:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($receipt_number); ?>
             </p>
             <?php endif; ?>
             
             <?php if ($receipt_signature) : ?>
             <p>
-                <strong><?php _e('Receipt Signature:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Receipt Signature:', 'kra-etims-connector'); ?></strong>
                 <code><?php echo esc_html($this->format_receipt_signature($receipt_signature)); ?></code>
             </p>
             <?php endif; ?>
             
             <?php if ($receipt_date) : ?>
             <p>
-                <strong><?php _e('Receipt Date:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Receipt Date:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($receipt_date); ?>
             </p>
             <?php endif; ?>
             
             <?php if ($mrc_number) : ?>
             <p>
-                <strong><?php _e('CU Number:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('CU Number:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($mrc_number); ?><br>
-                <strong><?php _e('SCU ID:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('SCU ID:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($sdc_id); ?>
             </p>
             <?php endif; ?>
@@ -296,12 +296,12 @@ class KRA_eTims_WC {
             if ($qr_url) : 
             ?>
             <p>
-                <strong><?php _e('QR Code URL:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('QR Code URL:', 'kra-etims-connector'); ?></strong>
                 <br>
                 <div class="qr-code-url"><?php echo esc_html($qr_url); ?></div>
             </p>
             <div style="margin-top: 10px;">
-                <strong><?php _e('QR Code:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('QR Code:', 'kra-etims-connector'); ?></strong>
                 <br>
                 <?php echo KRA_eTims_WC_QR_Code::generate_qr_image($qr_url, 120); ?>
             </div>
@@ -309,14 +309,14 @@ class KRA_eTims_WC {
             
             <?php if ($custom_api_submitted_at) : ?>
             <p>
-                <strong><?php _e('Submitted at:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Submitted at:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($custom_api_submitted_at))); ?>
             </p>
             <?php endif; ?>
             
             <p>
                 <a href="<?php echo wp_nonce_url(admin_url('admin-ajax.php?action=kra_etims_submit_order&order_id=' . $order_id), 'kra_etims_submit_order'); ?>" class="button">
-                    <?php _e('Submit to Custom API', 'kra-etims-integration'); ?>
+                    <?php _e('Submit to Custom API', 'kra-etims-connector'); ?>
                 </a>
             </p>
             
@@ -331,7 +331,7 @@ class KRA_eTims_WC {
                    class="button button-secondary" 
                    style="background-color: #d63638; border-color: #d63638; color: #fff;"
                    onclick="return confirm('⚠️ Are you sure you want to process a refund for this order? This will send a refund request to the API with rcptTyCd=R, rfdRsnCd=06. This action cannot be undone.');">
-                    🔄 <?php _e('Process Refund', 'kra-etims-integration'); ?>
+                    🔄 <?php _e('Process Refund', 'kra-etims-connector'); ?>
                 </a>
             </p>
             <?php 
@@ -340,18 +340,18 @@ class KRA_eTims_WC {
                     $refund_submitted_at = get_post_meta($order_id, '_custom_api_refund_submitted_at', true);
             ?>
             <p>
-                <strong style="color: #d63638;"><?php _e('Refund Status:', 'kra-etims-integration'); ?></strong>
-                <span style="color: #00a32a;"><?php _e('Processed', 'kra-etims-integration'); ?></span>
+                <strong style="color: #d63638;"><?php _e('Refund Status:', 'kra-etims-connector'); ?></strong>
+                <span style="color: #00a32a;"><?php _e('Processed', 'kra-etims-connector'); ?></span>
             </p>
             <?php if ($refund_invoice_no): ?>
             <p>
-                <strong><?php _e('Refund Invoice No:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Refund Invoice No:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($refund_invoice_no); ?>
             </p>
             <?php endif; ?>
             <?php if ($refund_submitted_at): ?>
             <p>
-                <strong><?php _e('Refund Processed at:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Refund Processed at:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($refund_submitted_at))); ?>
             </p>
             <?php endif; ?>
@@ -386,8 +386,8 @@ class KRA_eTims_WC {
             <h3 style="margin-top: 0; color: #0073aa;">🔗 KRA eTims Integration</h3>
             
             <p>
-                <strong><?php _e('Custom API Status:', 'kra-etims-integration'); ?></strong>
-                <?php echo $custom_api_status ? esc_html($custom_api_status) : __('Not submitted', 'kra-etims-integration'); ?>
+                <strong><?php _e('Custom API Status:', 'kra-etims-connector'); ?></strong>
+                <?php echo $custom_api_status ? esc_html($custom_api_status) : __('Not submitted', 'kra-etims-connector'); ?>
             </p>
             
             <?php 
@@ -396,44 +396,44 @@ class KRA_eTims_WC {
             if ($customer_tin) : 
             ?>
             <p>
-                <strong><?php _e('Customer TIN:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Customer TIN:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($customer_tin); ?>
             </p>
             <?php endif; ?>
             
             <?php if ($custom_api_invoice_no) : ?>
             <p>
-                <strong><?php _e('Invoice No:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Invoice No:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($custom_api_invoice_no); ?>
             </p>
             <?php endif; ?>
             
             <?php if ($receipt_number) : ?>
             <p>
-                <strong><?php _e('Receipt No:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Receipt No:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($receipt_number); ?>
             </p>
             <?php endif; ?>
             
             <?php if ($receipt_signature) : ?>
             <p>
-                <strong><?php _e('Receipt Signature:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Receipt Signature:', 'kra-etims-connector'); ?></strong>
                 <code><?php echo esc_html($this->format_receipt_signature($receipt_signature)); ?></code>
             </p>
             <?php endif; ?>
             
             <?php if ($receipt_date) : ?>
             <p>
-                <strong><?php _e('Receipt Date:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Receipt Date:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($receipt_date); ?>
             </p>
             <?php endif; ?>
             
             <?php if ($mrc_number) : ?>
             <p>
-                <strong><?php _e('CU Number:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('CU Number:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($mrc_number); ?><br>
-                <strong><?php _e('SCU ID:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('SCU ID:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($sdc_id); ?>
             </p>
             <?php endif; ?>
@@ -444,12 +444,12 @@ class KRA_eTims_WC {
             if ($qr_url) : 
             ?>
             <p>
-                <strong><?php _e('QR Code URL:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('QR Code URL:', 'kra-etims-connector'); ?></strong>
                 <br>
                 <div class="qr-code-url"><?php echo esc_html($qr_url); ?></div>
             </p>
             <div style="margin-top: 10px;">
-                <strong><?php _e('QR Code:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('QR Code:', 'kra-etims-connector'); ?></strong>
                 <br>
                 <?php echo KRA_eTims_WC_QR_Code::generate_qr_image($qr_url, 120); ?>
             </div>
@@ -457,7 +457,7 @@ class KRA_eTims_WC {
             
             <?php if ($custom_api_submitted_at) : ?>
             <p>
-                <strong><?php _e('Submitted at:', 'kra-etims-integration'); ?></strong>
+                <strong><?php _e('Submitted at:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($custom_api_submitted_at))); ?>
             </p>
             <?php endif; ?>
@@ -473,22 +473,22 @@ class KRA_eTims_WC {
             // Show appropriate button based on status
             if ($already_submitted) {
                 // Already submitted - disabled button
-                $button_text = __('Submit to Custom API', 'kra-etims-integration');
+                $button_text = __('Submit to Custom API', 'kra-etims-connector');
                 $button_class = 'button button-primary';
                 $disabled = true;
-                $message = __('Order already submitted to custom API. Cannot resubmit.', 'kra-etims-integration');
+                $message = __('Order already submitted to custom API. Cannot resubmit.', 'kra-etims-connector');
             } elseif (in_array($order_status, array('draft', 'pending'))) {
                 // Order not ready - disabled button
-                $button_text = __('Submit to Custom API', 'kra-etims-integration');
+                $button_text = __('Submit to Custom API', 'kra-etims-connector');
                 $button_class = 'button button-primary';
                 $disabled = true;
-                $message = __('Order must be processed before submitting.', 'kra-etims-integration');
+                $message = __('Order must be processed before submitting.', 'kra-etims-connector');
             } else {
                 // Ready to submit - enabled submit button
-                $button_text = __('Submit to Custom API', 'kra-etims-integration');
+                $button_text = __('Submit to Custom API', 'kra-etims-connector');
                 $button_class = 'button button-primary';
                 $disabled = false;
-                $message = __('Ready to submit to custom API.', 'kra-etims-integration');
+                $message = __('Ready to submit to custom API.', 'kra-etims-connector');
             }
             ?>
             <p>
@@ -515,9 +515,9 @@ class KRA_eTims_WC {
                    class="button button-secondary" 
                    style="background-color: #d63638; border-color: #d63638; color: #fff;"
                    onclick="return confirm('⚠️ Are you sure you want to process a refund for this order? This will send a refund request to the API with rcptTyCd=R, rfdRsnCd=06. This action cannot be undone.');">
-                    🔄 <?php _e('Process Refund', 'kra-etims-integration'); ?>
+                    🔄 <?php _e('Process Refund', 'kra-etims-connector'); ?>
                 </a>
-                <br><small style="color: #666;"><?php _e('Admin only: Send refund request to API', 'kra-etims-integration'); ?></small>
+                <br><small style="color: #666;"><?php _e('Admin only: Send refund request to API', 'kra-etims-connector'); ?></small>
             </p>
             <?php 
                 elseif ($refund_status === 'success'):
@@ -525,14 +525,14 @@ class KRA_eTims_WC {
                     $refund_submitted_at = get_post_meta($order_id, '_custom_api_refund_submitted_at', true);
             ?>
             <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
-                <strong style="color: #d63638;"><?php _e('Refund Status:', 'kra-etims-integration'); ?></strong>
-                <span style="color: #00a32a;"><?php _e('Processed', 'kra-etims-integration'); ?></span>
+                <strong style="color: #d63638;"><?php _e('Refund Status:', 'kra-etims-connector'); ?></strong>
+                <span style="color: #00a32a;"><?php _e('Processed', 'kra-etims-connector'); ?></span>
                 <?php if ($refund_invoice_no): ?>
-                <br><strong><?php _e('Refund Invoice No:', 'kra-etims-integration'); ?></strong>
+                <br><strong><?php _e('Refund Invoice No:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html($refund_invoice_no); ?>
                 <?php endif; ?>
                 <?php if ($refund_submitted_at): ?>
-                <br><strong><?php _e('Refund Processed at:', 'kra-etims-integration'); ?></strong>
+                <br><strong><?php _e('Refund Processed at:', 'kra-etims-connector'); ?></strong>
                 <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($refund_submitted_at))); ?>
                 <?php endif; ?>
             </p>
@@ -604,12 +604,12 @@ class KRA_eTims_WC {
         woocommerce_form_field('customer_tin', array(
             'type' => 'text',
             'class' => array('form-row-wide'),
-            'label' => __('Customer TIN/PIN', 'kra-etims-integration'),
-            'placeholder' => __('Enter 11-character tax identification number', 'kra-etims-integration'),
+            'label' => __('Customer TIN/PIN', 'kra-etims-connector'),
+            'placeholder' => __('Enter 11-character tax identification number', 'kra-etims-connector'),
             'required' => false,
             'maxlength' => 11,
             'pattern' => '[A-Za-z0-9]{0,11}',
-            'description' => __('Optional: Customer tax identification number (TIN/PIN) - must be exactly 11 characters (e.g., P051769063X)', 'kra-etims-integration')
+            'description' => __('Optional: Customer tax identification number (TIN/PIN) - must be exactly 11 characters (e.g., P051769063X)', 'kra-etims-connector')
         ), $customer_tin);
         echo '</div>';
     }
@@ -641,10 +641,10 @@ class KRA_eTims_WC {
         $customer_tin = get_post_meta($order->get_id(), '_customer_tin', true);
         ?>
         <div class="form-field form-field-wide">
-            <label for="customer_tin"><?php _e('Customer TIN/PIN:', 'kra-etims-integration'); ?></label>
+            <label for="customer_tin"><?php _e('Customer TIN/PIN:', 'kra-etims-connector'); ?></label>
             <input type="text" id="customer_tin" name="customer_tin" value="<?php echo esc_attr($customer_tin); ?>" 
                    placeholder="Enter 11-character tax identification number" maxlength="11" pattern="[A-Za-z0-9]{0,11}" style="width: 100%;" />
-            <p class="description"><?php _e('Customer tax identification number (TIN/PIN) - must be exactly 11 characters (e.g., P051769063X) (optional)', 'kra-etims-integration'); ?></p>
+            <p class="description"><?php _e('Customer tax identification number (TIN/PIN) - must be exactly 11 characters (e.g., P051769063X) (optional)', 'kra-etims-connector'); ?></p>
         </div>
         <?php
     }
@@ -722,13 +722,13 @@ class KRA_eTims_WC {
         $customer_tin = get_user_meta(get_current_user_id(), '_customer_tin', true);
         ?>
         <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-            <label for="account_tin"><?php _e('Tax Identification Number (TIN)', 'kra-etims-integration'); ?></label>
+            <label for="account_tin"><?php _e('Tax Identification Number (TIN)', 'kra-etims-connector'); ?></label>
             <input type="text" class="woocommerce-Input woocommerce-Input--text input-text" 
                    name="account_tin" id="account_tin" 
                    value="<?php echo esc_attr($customer_tin); ?>" 
-                   placeholder="<?php _e('Enter 11-character tax identification number', 'kra-etims-integration'); ?>" 
+                   placeholder="<?php _e('Enter 11-character tax identification number', 'kra-etims-connector'); ?>" 
                    maxlength="11" pattern="[A-Za-z0-9]{0,11}" />
-            <span class="description"><?php _e('Your tax identification number (TIN/PIN) - must be exactly 11 characters (e.g., P051769063X)', 'kra-etims-integration'); ?></span>
+            <span class="description"><?php _e('Your tax identification number (TIN/PIN) - must be exactly 11 characters (e.g., P051769063X)', 'kra-etims-connector'); ?></span>
         </p>
         <?php
     }
@@ -758,11 +758,11 @@ class KRA_eTims_WC {
         
         $customer_tin = get_user_meta($user->ID, '_customer_tin', true);
         ?>
-        <h3><?php _e('KRA eTIMS Information', 'kra-etims-integration'); ?></h3>
+        <h3><?php _e('KRA eTIMS Information', 'kra-etims-connector'); ?></h3>
         <table class="form-table">
             <tr>
                 <th>
-                    <label for="customer_tin"><?php _e('Customer TIN/PIN', 'kra-etims-integration'); ?></label>
+                    <label for="customer_tin"><?php _e('Customer TIN/PIN', 'kra-etims-connector'); ?></label>
                 </th>
                 <td>
                     <input type="text" 
@@ -772,9 +772,9 @@ class KRA_eTims_WC {
                            class="regular-text" 
                            maxlength="11" 
                            pattern="[A-Za-z0-9]{0,11}" 
-                           placeholder="<?php _e('Enter 11-character tax identification number', 'kra-etims-integration'); ?>" />
+                           placeholder="<?php _e('Enter 11-character tax identification number', 'kra-etims-connector'); ?>" />
                     <p class="description">
-                        <?php _e('Customer tax identification number (TIN/PIN) for KRA eTIMS - must be exactly 11 characters (e.g., P051769063X)', 'kra-etims-integration'); ?>
+                        <?php _e('Customer tax identification number (TIN/PIN) for KRA eTIMS - must be exactly 11 characters (e.g., P051769063X)', 'kra-etims-connector'); ?>
                     </p>
                 </td>
             </tr>
@@ -805,7 +805,7 @@ class KRA_eTims_WC {
      * Add customer TIN column to users list
      */
     public function add_customer_tin_column($columns) {
-        $columns['customer_tin'] = __('Customer TIN/PIN', 'kra-etims-integration');
+        $columns['customer_tin'] = __('Customer TIN/PIN', 'kra-etims-connector');
         return $columns;
     }
 

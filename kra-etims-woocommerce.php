@@ -4,7 +4,7 @@
  * Description: Integrates WooCommerce with Kenya Revenue Authority (KRA) Electronic Tax Invoice Management System (eTims) to Generate eTims compliant receipts
  * Version: 1.0.1
  * Author: Rhenium Group Limited    
- * Text Domain: kra-etims-integration
+ * Text Domain: kra-etims-connector
  * Domain Path: /languages
  * Requires at least: 5.6
  * Requires PHP: 7.4
@@ -31,7 +31,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
     add_action('admin_notices', function() {
         ?>
         <div class="notice notice-error">
-            <p><?php _e('KRA eTims WooCommerce Plugin requires WooCommerce to be installed and activated.', 'kra-etims-integration'); ?></p>
+            <p><?php _e('KRA eTims WooCommerce Plugin requires WooCommerce to be installed and activated.', 'kra-etims-connector'); ?></p>
         </div>
         <?php
     });

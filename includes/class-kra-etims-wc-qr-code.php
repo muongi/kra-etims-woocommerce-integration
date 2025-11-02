@@ -43,12 +43,12 @@ class KRA_eTims_WC_QR_Code {
         if ($local_qr_code) {
             $html = '<div class="receipt-qr-code">';
             $html .= $local_qr_code;
-            $html .= '<p class="qr-code-text">' . __('Scan to verify receipt', 'kra-etims-integration') . '</p>';
+            $html .= '<p class="qr-code-text">' . __('Scan to verify receipt', 'kra-etims-connector') . '</p>';
             
             if ($show_download) {
                 $html .= '<p class="qr-code-download">';
                 $html .= '<button onclick="downloadQRCode(this)" data-url="' . esc_attr($qr_url) . '" class="button button-small">';
-                $html .= __('Download QR Code', 'kra-etims-integration');
+                $html .= __('Download QR Code', 'kra-etims-connector');
                 $html .= '</button>';
                 $html .= '</p>';
             }
@@ -64,16 +64,16 @@ class KRA_eTims_WC_QR_Code {
         $html = '<div class="receipt-qr-code">';
         $html .= '<img src="' . esc_url($qr_image_url) . '" alt="QR Code" width="' . $size . '" height="' . $size . '" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'block\';" />';
         $html .= '<div class="qr-code-fallback" style="display: none; padding: 20px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; text-align: center;">';
-        $html .= '<p><strong>' . __('QR Code Preview Unavailable', 'kra-etims-integration') . '</strong></p>';
-        $html .= '<p>' . __('Please use the URL below to verify the receipt:', 'kra-etims-integration') . '</p>';
+        $html .= '<p><strong>' . __('QR Code Preview Unavailable', 'kra-etims-connector') . '</strong></p>';
+        $html .= '<p>' . __('Please use the URL below to verify the receipt:', 'kra-etims-connector') . '</p>';
         $html .= '<code style="font-size: 10px; word-break: break-all; display: block; margin: 10px 0; padding: 8px; background: #fff; border: 1px solid #ccc;">' . esc_html($qr_url) . '</code>';
         $html .= '</div>';
-        $html .= '<p class="qr-code-text">' . __('Scan to verify receipt', 'kra-etims-integration') . '</p>';
+        $html .= '<p class="qr-code-text">' . __('Scan to verify receipt', 'kra-etims-connector') . '</p>';
         
         if ($show_download) {
             $html .= '<p class="qr-code-download">';
             $html .= '<a href="' . esc_url($qr_image_url) . '" download="qr-code-' . time() . '.png" class="button button-small">';
-            $html .= __('Download QR Code', 'kra-etims-integration');
+            $html .= __('Download QR Code', 'kra-etims-connector');
             $html .= '</a>';
             $html .= '</p>';
         }
@@ -271,7 +271,7 @@ class KRA_eTims_WC_QR_Code {
         $show_download = ($atts['show_download'] === 'true');
         
         if ($order_id <= 0) {
-            return '<p>' . __('Error: Invalid order ID', 'kra-etims-integration') . '</p>';
+            return '<p>' . __('Error: Invalid order ID', 'kra-etims-connector') . '</p>';
         }
         
         return self::generate_customer_qr_code($order_id, $size, $show_download);

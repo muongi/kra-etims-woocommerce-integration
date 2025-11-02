@@ -52,8 +52,8 @@ class KRA_eTims_WC_Admin {
     public function add_admin_menu() {
         // Add top-level menu item
         add_menu_page(
-            __('KRA eTims', 'kra-etims-integration'),
-            __('KRA eTims', 'kra-etims-integration'),
+            __('KRA eTims', 'kra-etims-connector'),
+            __('KRA eTims', 'kra-etims-connector'),
             'manage_woocommerce',
             'kra-etims-wc',
             array($this, 'render_settings_page'),
@@ -64,8 +64,8 @@ class KRA_eTims_WC_Admin {
         // Add submenu items
         add_submenu_page(
             'woocommerce',
-            __('KRA eTims', 'kra-etims-integration'),
-            __('KRA eTims', 'kra-etims-integration'),
+            __('KRA eTims', 'kra-etims-connector'),
+            __('KRA eTims', 'kra-etims-connector'),
             'manage_woocommerce',
             'kra-etims-wc',
             array($this, 'render_settings_page')
@@ -74,8 +74,8 @@ class KRA_eTims_WC_Admin {
         // Add Reports submenu under KRA eTims main menu
         add_submenu_page(
             'kra-etims-wc',
-            __('eTIMS Reports', 'kra-etims-integration'),
-            __('eTIMS Reports', 'kra-etims-integration'),
+            __('eTIMS Reports', 'kra-etims-connector'),
+            __('eTIMS Reports', 'kra-etims-connector'),
             'manage_woocommerce',
             'kra-etims-wc-reports',
             array($this, 'render_reports_page')
@@ -94,14 +94,14 @@ class KRA_eTims_WC_Admin {
         // Add settings sections
         add_settings_section(
             'kra_etims_wc_general',
-            __('KRA eTims Settings', 'kra-etims-integration'),
+            __('KRA eTims Settings', 'kra-etims-connector'),
             array($this, 'render_general_section'),
             'kra_etims_wc_settings'
         );
         
         add_settings_section(
             'kra_etims_wc_api',
-            __('Custom API Settings', 'kra-etims-integration'),
+            __('Custom API Settings', 'kra-etims-connector'),
             array($this, 'render_api_section'),
             'kra_etims_wc_settings'
         );
@@ -111,7 +111,7 @@ class KRA_eTims_WC_Admin {
         // Add settings fields
         add_settings_field(
             'kra_etims_wc_tin',
-            __('Taxpayer Identification Number (TIN)', 'kra-etims-integration'),
+            __('Taxpayer Identification Number (TIN)', 'kra-etims-connector'),
             array($this, 'render_tin_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -119,7 +119,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_company_name',
-            __('Company Name', 'kra-etims-integration'),
+            __('Company Name', 'kra-etims-connector'),
             array($this, 'render_company_name_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -127,7 +127,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_bhfId',
-            __('Branch ID', 'kra-etims-integration'),
+            __('Branch ID', 'kra-etims-connector'),
             array($this, 'render_bhfId_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -135,7 +135,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_device_serial',
-            __('Device Serial', 'kra-etims-integration'),
+            __('Device Serial', 'kra-etims-connector'),
             array($this, 'render_device_serial_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -143,7 +143,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_auto_submit',
-            __('Auto Submit', 'kra-etims-integration'),
+            __('Auto Submit', 'kra-etims-connector'),
             array($this, 'render_auto_submit_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_general'
@@ -151,7 +151,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_include_shipping',
-            __('Include Shipping in KRA API', 'kra-etims-integration'),
+            __('Include Shipping in KRA API', 'kra-etims-connector'),
             array($this, 'render_include_shipping_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_general'
@@ -163,7 +163,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_custom_api_live_url',
-            __('Production API URL', 'kra-etims-integration'),
+            __('Production API URL', 'kra-etims-connector'),
             array($this, 'render_custom_api_live_url_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -171,7 +171,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_api_base_url',
-            __('API Base URL', 'kra-etims-integration'),
+            __('API Base URL', 'kra-etims-connector'),
             array($this, 'render_api_base_url_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -179,7 +179,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_current_endpoint',
-            __('Current API Endpoint', 'kra-etims-integration'),
+            __('Current API Endpoint', 'kra-etims-connector'),
             array($this, 'render_current_endpoint_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -187,7 +187,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_force_https',
-            __('Force HTTPS', 'kra-etims-integration'),
+            __('Force HTTPS', 'kra-etims-connector'),
             array($this, 'render_force_https_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -195,7 +195,7 @@ class KRA_eTims_WC_Admin {
         
         add_settings_field(
             'kra_etims_wc_custom_api_port',
-            __('Custom API Port', 'kra-etims-integration'),
+            __('Custom API Port', 'kra-etims-connector'),
             array($this, 'render_custom_api_port_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -204,7 +204,7 @@ class KRA_eTims_WC_Admin {
         // Product API settings
         add_settings_field(
             'kra_etims_wc_auto_submit_products',
-            __('Auto Submit Products', 'kra-etims-integration'),
+            __('Auto Submit Products', 'kra-etims-connector'),
             array($this, 'render_auto_submit_products_field'),
             'kra_etims_wc_settings',
             'kra_etims_wc_api'
@@ -228,11 +228,11 @@ class KRA_eTims_WC_Admin {
             </form>
             
             <div style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-left: 4px solid #d63638; border-radius: 4px;">
-                <h2 style="margin-top: 0;"><?php _e('Tax Rate Fix (Tax-Inclusive Pricing)', 'kra-etims-integration'); ?></h2>
-                <p><?php _e('If your products are showing incorrect prices (e.g., 533 showing as 618), click the button below to clear all WooCommerce tax rates. This prevents double taxation on tax-inclusive prices.', 'kra-etims-integration'); ?></p>
-                <p><strong><?php _e('Note:', 'kra-etims-integration'); ?></strong> <?php _e('After clicking this button, you may need to re-save your products for the changes to take effect. Tax will still be calculated correctly for API reporting.', 'kra-etims-integration'); ?></p>
+                <h2 style="margin-top: 0;"><?php _e('Tax Rate Fix (Tax-Inclusive Pricing)', 'kra-etims-connector'); ?></h2>
+                <p><?php _e('If your products are showing incorrect prices (e.g., 533 showing as 618), click the button below to clear all WooCommerce tax rates. This prevents double taxation on tax-inclusive prices.', 'kra-etims-connector'); ?></p>
+                <p><strong><?php _e('Note:', 'kra-etims-connector'); ?></strong> <?php _e('After clicking this button, you may need to re-save your products for the changes to take effect. Tax will still be calculated correctly for API reporting.', 'kra-etims-connector'); ?></p>
                 <button type="button" id="kra-etims-clear-tax-rates" class="button button-secondary" style="background-color: #d63638; border-color: #d63638; color: #fff;">
-                    <?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-integration'); ?>
+                    <?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-connector'); ?>
                 </button>
                 <span id="kra-etims-tax-clear-message" style="margin-left: 10px;"></span>
             </div>
@@ -240,14 +240,14 @@ class KRA_eTims_WC_Admin {
             <script>
             jQuery(document).ready(function($) {
                 $('#kra-etims-clear-tax-rates').on('click', function() {
-                    if (!confirm('<?php _e('Are you sure you want to clear all WooCommerce tax rates? This will fix double taxation issues but you may need to re-save your products.', 'kra-etims-integration'); ?>')) {
+                    if (!confirm('<?php _e('Are you sure you want to clear all WooCommerce tax rates? This will fix double taxation issues but you may need to re-save your products.', 'kra-etims-connector'); ?>')) {
                         return;
                     }
                     
                     var $button = $(this);
                     var $message = $('#kra-etims-tax-clear-message');
                     
-                    $button.prop('disabled', true).text('<?php _e('Clearing...', 'kra-etims-integration'); ?>');
+                    $button.prop('disabled', true).text('<?php _e('Clearing...', 'kra-etims-connector'); ?>');
                     $message.html('');
                     
                     $.ajax({
@@ -260,15 +260,15 @@ class KRA_eTims_WC_Admin {
                         success: function(response) {
                             if (response.success) {
                                 $message.html('<span style="color: #00a32a;">✓ ' + response.data.message + '</span>');
-                                alert('<?php _e('Tax rates cleared successfully! Please re-save your products to apply changes.', 'kra-etims-integration'); ?>');
+                                alert('<?php _e('Tax rates cleared successfully! Please re-save your products to apply changes.', 'kra-etims-connector'); ?>');
                             } else {
                                 $message.html('<span style="color: #d63638;">✗ ' + response.data + '</span>');
                             }
-                            $button.prop('disabled', false).text('<?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-integration'); ?>');
+                            $button.prop('disabled', false).text('<?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-connector'); ?>');
                         },
                         error: function() {
-                            $message.html('<span style="color: #d63638;">✗ <?php _e('An error occurred.', 'kra-etims-integration'); ?></span>');
-                            $button.prop('disabled', false).text('<?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-integration'); ?>');
+                            $message.html('<span style="color: #d63638;">✗ <?php _e('An error occurred.', 'kra-etims-connector'); ?></span>');
+                            $button.prop('disabled', false).text('<?php _e('Clear All Tax Rates (Fix Double Taxation)', 'kra-etims-connector'); ?>');
                         }
                     });
                 });
@@ -323,57 +323,57 @@ class KRA_eTims_WC_Admin {
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             
             <div style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-radius: 4px;">
-                <h2><?php _e('Filter Orders', 'kra-etims-integration'); ?></h2>
+                <h2><?php _e('Filter Orders', 'kra-etims-connector'); ?></h2>
                 <form method="get" action="">
                     <input type="hidden" name="page" value="kra-etims-wc-reports" />
                     
                     <table class="form-table">
                         <tr>
-                            <th><label for="date_from"><?php _e('Date From:', 'kra-etims-integration'); ?></label></th>
+                            <th><label for="date_from"><?php _e('Date From:', 'kra-etims-connector'); ?></label></th>
                             <td>
                                 <input type="date" id="date_from" name="date_from" value="<?php echo esc_attr($date_from); ?>" />
                             </td>
-                            <th><label for="date_to"><?php _e('Date To:', 'kra-etims-integration'); ?></label></th>
+                            <th><label for="date_to"><?php _e('Date To:', 'kra-etims-connector'); ?></label></th>
                             <td>
                                 <input type="date" id="date_to" name="date_to" value="<?php echo esc_attr($date_to); ?>" />
                             </td>
                         </tr>
                         <tr>
-                            <th><label for="status_filter"><?php _e('Status:', 'kra-etims-integration'); ?></label></th>
+                            <th><label for="status_filter"><?php _e('Status:', 'kra-etims-connector'); ?></label></th>
                             <td colspan="3">
                                 <select id="status_filter" name="status_filter">
-                                    <option value="all" <?php selected($status_filter, 'all'); ?>><?php _e('All Orders', 'kra-etims-integration'); ?></option>
-                                    <option value="success" <?php selected($status_filter, 'success'); ?>><?php _e('Submitted to API', 'kra-etims-integration'); ?></option>
-                                    <option value="not_submitted" <?php selected($status_filter, 'not_submitted'); ?>><?php _e('Not Submitted', 'kra-etims-integration'); ?></option>
+                                    <option value="all" <?php selected($status_filter, 'all'); ?>><?php _e('All Orders', 'kra-etims-connector'); ?></option>
+                                    <option value="success" <?php selected($status_filter, 'success'); ?>><?php _e('Submitted to API', 'kra-etims-connector'); ?></option>
+                                    <option value="not_submitted" <?php selected($status_filter, 'not_submitted'); ?>><?php _e('Not Submitted', 'kra-etims-connector'); ?></option>
                                 </select>
                             </td>
                         </tr>
                     </table>
                     
                     <p>
-                        <button type="submit" class="button button-primary"><?php _e('Apply Filter', 'kra-etims-integration'); ?></button>
-                        <a href="?page=kra-etims-wc-reports" class="button"><?php _e('Clear Filter', 'kra-etims-integration'); ?></a>
+                        <button type="submit" class="button button-primary"><?php _e('Apply Filter', 'kra-etims-connector'); ?></button>
+                        <a href="?page=kra-etims-wc-reports" class="button"><?php _e('Clear Filter', 'kra-etims-connector'); ?></a>
                     </p>
                 </form>
             </div>
             
             <div style="background: #fff; padding: 20px; margin: 20px 0; border: 1px solid #ccd0d4; border-radius: 4px;">
-                <h2><?php _e('Submitted Orders', 'kra-etims-integration'); ?> (<?php echo count($submitted_orders); ?>)</h2>
+                <h2><?php _e('Submitted Orders', 'kra-etims-connector'); ?> (<?php echo count($submitted_orders); ?>)</h2>
                 
                 <?php if (empty($submitted_orders)) : ?>
-                    <p><?php _e('No orders found matching your criteria.', 'kra-etims-integration'); ?></p>
+                    <p><?php _e('No orders found matching your criteria.', 'kra-etims-connector'); ?></p>
                 <?php else : ?>
                     <table class="wp-list-table widefat fixed striped">
                         <thead>
                             <tr>
-                                <th style="width: 100px;"><?php _e('Order #', 'kra-etims-integration'); ?></th>
-                                <th><?php _e('Date', 'kra-etims-integration'); ?></th>
-                                <th><?php _e('Customer', 'kra-etims-integration'); ?></th>
-                                <th><?php _e('Total', 'kra-etims-integration'); ?></th>
-                                <th><?php _e('Etims Invoice No', 'kra-etims-integration'); ?></th>
-                                <th><?php _e('Receipt Signature', 'kra-etims-integration'); ?></th>
-                                <th><?php _e('QR Code', 'kra-etims-integration'); ?></th>
-                                <th><?php _e('Actions', 'kra-etims-integration'); ?></th>
+                                <th style="width: 100px;"><?php _e('Order #', 'kra-etims-connector'); ?></th>
+                                <th><?php _e('Date', 'kra-etims-connector'); ?></th>
+                                <th><?php _e('Customer', 'kra-etims-connector'); ?></th>
+                                <th><?php _e('Total', 'kra-etims-connector'); ?></th>
+                                <th><?php _e('Etims Invoice No', 'kra-etims-connector'); ?></th>
+                                <th><?php _e('Receipt Signature', 'kra-etims-connector'); ?></th>
+                                <th><?php _e('QR Code', 'kra-etims-connector'); ?></th>
+                                <th><?php _e('Actions', 'kra-etims-connector'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -416,7 +416,7 @@ class KRA_eTims_WC_Admin {
                                 <td>
                                     <?php if ($qr_url) : ?>
                                         <a href="<?php echo esc_url($qr_url); ?>" target="_blank" class="button button-small">
-                                            <?php _e('View QR', 'kra-etims-integration'); ?>
+                                            <?php _e('View QR', 'kra-etims-connector'); ?>
                                         </a>
                                     <?php else : ?>
                                         <span style="color: #999;">—</span>
@@ -424,7 +424,7 @@ class KRA_eTims_WC_Admin {
                                 </td>
                                 <td>
                                     <a href="<?php echo admin_url('post.php?post=' . $order_id . '&action=edit'); ?>" class="button button-small">
-                                        <?php _e('View Order', 'kra-etims-integration'); ?>
+                                        <?php _e('View Order', 'kra-etims-connector'); ?>
                                     </a>
                                     <?php if ($custom_api_status === 'success') : ?>
                                         <span style="color: #00a32a; margin-left: 5px;">✓</span>
@@ -460,7 +460,7 @@ class KRA_eTims_WC_Admin {
      * Render general section
      */
     public function render_general_section() {
-        echo '<p>' . __('Configure general settings for the KRA eTims WooCommerce integration.', 'kra-etims-integration') . '</p>';
+        echo '<p>' . __('Configure general settings for the KRA eTims WooCommerce integration.', 'kra-etims-connector') . '</p>';
     }
 
     /**
@@ -468,7 +468,7 @@ class KRA_eTims_WC_Admin {
      */
     public function render_api_section() {
         ?>
-        <p><?php _e('Configure your custom API endpoint for sending receipt data.', 'kra-etims-integration'); ?></p>
+        <p><?php _e('Configure your custom API endpoint for sending receipt data.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -480,7 +480,7 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['tin']) ? $settings['tin'] : '';
         ?>
         <input type="text" name="kra_etims_wc_settings[tin]" value="<?php echo esc_attr($value); ?>" class="regular-text" />
-        <p class="description"><?php _e('Your Taxpayer Identification Number (TIN) to be sent with receipt data.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Your Taxpayer Identification Number (TIN) to be sent with receipt data.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -492,7 +492,7 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['company_name']) ? $settings['company_name'] : '';
         ?>
         <input type="text" name="kra_etims_wc_settings[company_name]" value="<?php echo esc_attr($value); ?>" class="regular-text" maxlength="20" />
-        <p class="description"><?php _e('Your company name to be sent with receipt data. Maximum 20 characters.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Your company name to be sent with receipt data. Maximum 20 characters.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -504,7 +504,7 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['bhfId']) ? $settings['bhfId'] : '00';
         ?>
         <input type="text" name="kra_etims_wc_settings[bhfId]" value="<?php echo esc_attr($value); ?>" class="regular-text" placeholder="00" />
-        <p class="description"><?php _e('Your branch ID for the KRA eTims system.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Your branch ID for the KRA eTims system.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -516,7 +516,7 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['device_serial']) ? $settings['device_serial'] : '30349fe8442deb86';
         ?>
         <input type="text" name="kra_etims_wc_settings[device_serial]" value="<?php echo esc_attr($value); ?>" class="regular-text" placeholder="30349fe8442deb86" />
-        <p class="description"><?php _e('Device serial number for the KRA eTims system. Used for Tax B (16% VAT) transactions.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Device serial number for the KRA eTims system. Used for Tax B (16% VAT) transactions.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -528,10 +528,10 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['auto_submit']) ? $settings['auto_submit'] : 'yes';
         ?>
         <select name="kra_etims_wc_settings[auto_submit]">
-            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-integration'); ?></option>
-            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-integration'); ?></option>
+            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-connector'); ?></option>
+            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-connector'); ?></option>
         </select>
-        <p class="description"><?php _e('Automatically submit receipt data to your custom API when an order is completed.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Automatically submit receipt data to your custom API when an order is completed.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -543,10 +543,10 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['include_shipping']) ? $settings['include_shipping'] : 'yes';
         ?>
         <select name="kra_etims_wc_settings[include_shipping]">
-            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-integration'); ?></option>
-            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-integration'); ?></option>
+            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-connector'); ?></option>
+            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-connector'); ?></option>
         </select>
-        <p class="description"><?php _e('Include shipping costs in the data sent to KRA eTIMS API. Set to "No" if you don\'t want shipping to be sent to KRA.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Include shipping costs in the data sent to KRA eTIMS API. Set to "No" if you don\'t want shipping to be sent to KRA.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -560,10 +560,10 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['custom_api_enabled']) ? $settings['custom_api_enabled'] : 'no';
         ?>
         <select name="kra_etims_wc_settings[custom_api_enabled]">
-            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-integration'); ?></option>
-            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-integration'); ?></option>
+            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-connector'); ?></option>
+            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-connector'); ?></option>
         </select>
-        <p class="description"><?php _e('Enable sending receipt data to your custom API endpoint.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Enable sending receipt data to your custom API endpoint.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -577,7 +577,7 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['custom_api_live_url']) ? $settings['custom_api_live_url'] : 'https://your-production-api.com/injongeReceipts';
         ?>
         <input type="url" name="kra_etims_wc_settings[custom_api_live_url]" value="<?php echo esc_attr($value); ?>" class="regular-text" placeholder="https://your-production-api.com/injongeReceipts" />
-        <p class="description"><?php _e('API endpoint URL for production environment. This will be used when "Production" environment is selected.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('API endpoint URL for production environment. This will be used when "Production" environment is selected.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -589,7 +589,7 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['api_base_url']) ? $settings['api_base_url'] : '';
         ?>
         <input type="url" name="kra_etims_wc_settings[api_base_url]" value="<?php echo esc_attr($value); ?>" class="regular-text" placeholder="https://your-api-domain.com" />
-        <p class="description"><?php _e('Base URL for your API (e.g., https://your-api-domain.com). The plugin will append /add_categories for categories and /update_items for products.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Base URL for your API (e.g., https://your-api-domain.com). The plugin will append /add_categories for categories and /update_items for products.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -603,7 +603,7 @@ class KRA_eTims_WC_Admin {
         <div class="current-endpoint-display">
             <code class="endpoint-url"><?php echo esc_html($current_url); ?></code>
         </div>
-        <p class="description"><?php _e('This is the API endpoint that will be used for sending receipt data.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('This is the API endpoint that will be used for sending receipt data.', 'kra-etims-connector'); ?></p>
         <style>
             .current-endpoint-display {
                 background: #f9f9f9;
@@ -632,9 +632,9 @@ class KRA_eTims_WC_Admin {
         ?>
         <label>
             <input type="checkbox" name="kra_etims_wc_settings[force_https]" value="yes" <?php checked($value, 'yes'); ?> />
-            <?php _e('Force HTTPS for API calls (useful for cPanel servers with connection issues)', 'kra-etims-integration'); ?>
+            <?php _e('Force HTTPS for API calls (useful for cPanel servers with connection issues)', 'kra-etims-connector'); ?>
         </label>
-        <p class="description"><?php _e('Check this if you\'re experiencing connection issues on cPanel servers. This will convert HTTP URLs to HTTPS.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Check this if you\'re experiencing connection issues on cPanel servers. This will convert HTTP URLs to HTTPS.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -646,7 +646,7 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['custom_api_port']) ? $settings['custom_api_port'] : '';
         ?>
         <input type="number" name="kra_etims_wc_settings[custom_api_port]" value="<?php echo esc_attr($value); ?>" class="small-text" placeholder="443" min="1" max="65535" />
-        <p class="description"><?php _e('Custom port for API calls (leave empty to use default). Useful if your hosting provider blocks certain ports.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Custom port for API calls (leave empty to use default). Useful if your hosting provider blocks certain ports.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -658,10 +658,10 @@ class KRA_eTims_WC_Admin {
         $value = isset($settings['auto_submit_products']) ? $settings['auto_submit_products'] : 'no';
         ?>
         <select name="kra_etims_wc_settings[auto_submit_products]">
-            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-integration'); ?></option>
-            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-integration'); ?></option>
+            <option value="yes" <?php selected($value, 'yes'); ?>><?php _e('Yes', 'kra-etims-connector'); ?></option>
+            <option value="no" <?php selected($value, 'no'); ?>><?php _e('No', 'kra-etims-connector'); ?></option>
         </select>
-        <p class="description"><?php _e('Automatically send new products to your API when they are created.', 'kra-etims-integration'); ?></p>
+        <p class="description"><?php _e('Automatically send new products to your API when they are created.', 'kra-etims-connector'); ?></p>
         <?php
     }
 
@@ -780,8 +780,8 @@ class KRA_eTims_WC_Admin {
                     'ajaxUrl' => admin_url('admin-ajax.php'),
                     'nonce' => wp_create_nonce('kra_etims_wc_admin'),
                     'getCustomerTinAction' => 'kra_etims_get_customer_tin',
-                    'customerTinFoundText' => __('Customer TIN found and populated.', 'kra-etims-integration'),
-                    'customerTinNotFoundText' => __('No TIN found for this customer.', 'kra-etims-integration')
+                    'customerTinFoundText' => __('Customer TIN found and populated.', 'kra-etims-connector'),
+                    'customerTinNotFoundText' => __('No TIN found for this customer.', 'kra-etims-connector')
                 )
             );
         }
@@ -793,12 +793,12 @@ class KRA_eTims_WC_Admin {
     public function ajax_submit_order() {
         // Check nonce
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'kra_etims_submit_order')) {
-            wp_send_json_error(__('Security check failed.', 'kra-etims-integration'));
+            wp_send_json_error(__('Security check failed.', 'kra-etims-connector'));
         }
         
         // Check order ID
         if (!isset($_GET['order_id'])) {
-            wp_send_json_error(__('Order ID is required.', 'kra-etims-integration'));
+            wp_send_json_error(__('Order ID is required.', 'kra-etims-connector'));
         }
         
         try {
@@ -807,7 +807,7 @@ class KRA_eTims_WC_Admin {
             // Check if order exists
             $order = wc_get_order($order_id);
             if (!$order) {
-                wp_send_json_error(__('Order not found.', 'kra-etims-integration'));
+                wp_send_json_error(__('Order not found.', 'kra-etims-connector'));
             }
             
             $order_handler = new KRA_eTims_WC_Order_Handler();
@@ -855,17 +855,17 @@ class KRA_eTims_WC_Admin {
     public function ajax_refund_order() {
         // Check nonce
         if (!isset($_GET['_wpnonce']) || !wp_verify_nonce($_GET['_wpnonce'], 'kra_etims_refund_order')) {
-            wp_send_json_error(__('Security check failed.', 'kra-etims-integration'));
+            wp_send_json_error(__('Security check failed.', 'kra-etims-connector'));
         }
         
         // Check if user is admin
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(__('Insufficient permissions. Only administrators can process refunds.', 'kra-etims-integration'));
+            wp_send_json_error(__('Insufficient permissions. Only administrators can process refunds.', 'kra-etims-connector'));
         }
         
         // Check order ID
         if (!isset($_GET['order_id'])) {
-            wp_send_json_error(__('Order ID is required.', 'kra-etims-integration'));
+            wp_send_json_error(__('Order ID is required.', 'kra-etims-connector'));
         }
         
         try {
@@ -874,7 +874,7 @@ class KRA_eTims_WC_Admin {
             // Check if order exists
             $order = wc_get_order($order_id);
             if (!$order) {
-                wp_send_json_error(__('Order not found.', 'kra-etims-integration'));
+                wp_send_json_error(__('Order not found.', 'kra-etims-connector'));
             }
             
             $order_handler = new KRA_eTims_WC_Order_Handler();
@@ -921,12 +921,12 @@ class KRA_eTims_WC_Admin {
     public function ajax_get_customer_tin() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'kra_etims_wc_admin')) {
-            wp_send_json_error(__('Security check failed.', 'kra-etims-integration'));
+            wp_send_json_error(__('Security check failed.', 'kra-etims-connector'));
         }
         
         // Check if customer ID is provided
         if (!isset($_POST['customer_id']) || empty($_POST['customer_id'])) {
-            wp_send_json_error(__('Customer ID is required.', 'kra-etims-integration'));
+            wp_send_json_error(__('Customer ID is required.', 'kra-etims-connector'));
         }
         
         $customer_id = intval($_POST['customer_id']);
@@ -937,10 +937,10 @@ class KRA_eTims_WC_Admin {
         if (!empty($customer_tin)) {
             wp_send_json_success(array(
                 'tin' => $customer_tin,
-                'message' => __('Customer TIN found.', 'kra-etims-integration')
+                'message' => __('Customer TIN found.', 'kra-etims-connector')
             ));
         } else {
-            wp_send_json_error(__('No TIN found for this customer.', 'kra-etims-integration'));
+            wp_send_json_error(__('No TIN found for this customer.', 'kra-etims-connector'));
         }
     }
 
@@ -1016,7 +1016,7 @@ class KRA_eTims_WC_Admin {
                         </table>
                     </div>
                 <?php else: ?>
-                    <p><?php _e('Order successfully submitted to Custom API.', 'kra-etims-integration'); ?></p>
+                    <p><?php _e('Order successfully submitted to Custom API.', 'kra-etims-connector'); ?></p>
                 <?php endif; ?>
                 
                 <p style="margin-bottom: 0;">
@@ -1048,12 +1048,12 @@ class KRA_eTims_WC_Admin {
             ?>
             <div class="notice notice-success is-dismissible">
                 <h3 style="margin-top: 0;">✅ Refund Successfully Processed</h3>
-                <p><?php _e('The refund has been successfully submitted to the custom API.', 'kra-etims-integration'); ?></p>
+                <p><?php _e('The refund has been successfully submitted to the custom API.', 'kra-etims-connector'); ?></p>
                 <?php if ($refund_invoice_no): ?>
-                <p><strong><?php _e('Refund Invoice No:', 'kra-etims-integration'); ?></strong> <code><?php echo esc_html($refund_invoice_no); ?></code></p>
+                <p><strong><?php _e('Refund Invoice No:', 'kra-etims-connector'); ?></strong> <code><?php echo esc_html($refund_invoice_no); ?></code></p>
                 <?php endif; ?>
                 <?php if ($refund_submitted_at): ?>
-                <p><strong><?php _e('Processed at:', 'kra-etims-integration'); ?></strong> <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($refund_submitted_at))); ?></p>
+                <p><strong><?php _e('Processed at:', 'kra-etims-connector'); ?></strong> <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($refund_submitted_at))); ?></p>
                 <?php endif; ?>
             </div>
             <?php
@@ -1076,12 +1076,12 @@ class KRA_eTims_WC_Admin {
     public function ajax_clear_tax_rates() {
         // Check nonce
         if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'kra_etims_clear_tax_rates')) {
-            wp_send_json_error(__('Security check failed.', 'kra-etims-integration'));
+            wp_send_json_error(__('Security check failed.', 'kra-etims-connector'));
         }
         
         // Check permissions
         if (!current_user_can('manage_woocommerce')) {
-            wp_send_json_error(__('Insufficient permissions.', 'kra-etims-integration'));
+            wp_send_json_error(__('Insufficient permissions.', 'kra-etims-connector'));
         }
         
         global $wpdb;
@@ -1095,7 +1095,7 @@ class KRA_eTims_WC_Admin {
         wp_cache_delete('tax-rates', 'woocommerce');
         
         wp_send_json_success(array(
-            'message' => sprintf(__('Successfully cleared %d tax rates and %d locations.', 'kra-etims-integration'), $rates_deleted, $locations_deleted)
+            'message' => sprintf(__('Successfully cleared %d tax rates and %d locations.', 'kra-etims-connector'), $rates_deleted, $locations_deleted)
         ));
     }
     

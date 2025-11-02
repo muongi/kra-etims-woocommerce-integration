@@ -157,7 +157,7 @@ class KRA_eTims_WC_API {
             
             return $response;
         } catch (Exception $e) {
-            throw new Exception(__('Failed to send receipt data to custom API: ', 'kra-etims-integration') . $e->getMessage(), $e->getCode());
+            throw new Exception(__('Failed to send receipt data to custom API: ', 'kra-etims-connector') . $e->getMessage(), $e->getCode());
         }
     }
 
@@ -528,7 +528,7 @@ class KRA_eTims_WC_API {
             return $response;
             
         } catch (Exception $e) {
-            throw new Exception(__('Failed to send product to API: ', 'kra-etims-integration') . $e->getMessage(), $e->getCode());
+            throw new Exception(__('Failed to send product to API: ', 'kra-etims-connector') . $e->getMessage(), $e->getCode());
         }
     }
     
@@ -568,7 +568,7 @@ class KRA_eTims_WC_API {
             return $response;
             
         } catch (Exception $e) {
-            throw new Exception(__('Failed to send category to API: ', 'kra-etims-integration') . $e->getMessage(), $e->getCode());
+            throw new Exception(__('Failed to send category to API: ', 'kra-etims-connector') . $e->getMessage(), $e->getCode());
         }
     }
 }

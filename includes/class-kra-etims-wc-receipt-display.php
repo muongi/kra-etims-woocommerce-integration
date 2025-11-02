@@ -46,13 +46,13 @@ class KRA_eTims_WC_Receipt_Display {
         if ($receipt_number) {
             ?>
             <section class="woocommerce-order-receipt-details">
-                <h2><?php _e('SCU INFORMATION', 'kra-etims-integration'); ?></h2>
+                <h2><?php _e('SCU INFORMATION', 'kra-etims-connector'); ?></h2>
                 <div class="receipt-details-container">
                     <div class="receipt-info">
                         <table class="woocommerce-table shop_table receipt_details">
                             <tbody>
                                 <tr>
-                                    <th><?php _e('Receipt Number:', 'kra-etims-integration'); ?></th>
+                                    <th><?php _e('Receipt Number:', 'kra-etims-connector'); ?></th>
                                     <td><?php echo esc_html($receipt_number); ?></td>
                                 </tr>
                                 <?php 
@@ -61,7 +61,7 @@ class KRA_eTims_WC_Receipt_Display {
                                 if ($customer_tin) : 
                                 ?>
                                 <tr>
-                                    <th><?php _e('Customer TIN:', 'kra-etims-integration'); ?></th>
+                                    <th><?php _e('Customer TIN:', 'kra-etims-connector'); ?></th>
                                     <td><?php echo esc_html($customer_tin); ?></td>
                                 </tr>
                                 <?php endif; ?>
@@ -71,31 +71,31 @@ class KRA_eTims_WC_Receipt_Display {
                                 if ($internal_data) : 
                                 ?>
                                 <tr>
-                                    <th><?php _e('Internal Data:', 'kra-etims-integration'); ?></th>
+                                    <th><?php _e('Internal Data:', 'kra-etims-connector'); ?></th>
                                     <td><code><?php echo esc_html($this->format_internal_data($internal_data)); ?></code></td>
                                 </tr>
                                 <?php endif; ?>
                                 <?php if ($receipt_signature) : ?>
                                 <tr>
-                                    <th><?php _e('Receipt Signature:', 'kra-etims-integration'); ?></th>
+                                    <th><?php _e('Receipt Signature:', 'kra-etims-connector'); ?></th>
                                     <td><code><?php echo esc_html($this->format_receipt_signature($receipt_signature)); ?></code></td>
                                 </tr>
                                 <?php endif; ?>
                                 <?php if ($receipt_date) : ?>
                                 <tr>
-                                    <th><?php _e('Receipt Date:', 'kra-etims-integration'); ?></th>
+                                    <th><?php _e('Receipt Date:', 'kra-etims-connector'); ?></th>
                                     <td><?php echo esc_html($this->format_receipt_date($receipt_date)); ?></td>
                                 </tr>
                                 <?php endif; ?>
                                 <?php if ($mrc_number) : ?>
                                 <tr>
-                                    <th><?php _e('CU Number:', 'kra-etims-integration'); ?></th>
+                                    <th><?php _e('CU Number:', 'kra-etims-connector'); ?></th>
                                     <td><?php echo esc_html($mrc_number); ?></td>
                                 </tr>
                                 <?php endif; ?>
                                 <?php if ($sdc_id) : ?>
                                 <tr>
-                                    <th><?php _e('SCU ID:', 'kra-etims-integration'); ?></th>
+                                    <th><?php _e('SCU ID:', 'kra-etims-connector'); ?></th>
                                     <td><?php echo esc_html($sdc_id); ?></td>
                                 </tr>
                                 <?php endif; ?>
@@ -169,41 +169,41 @@ class KRA_eTims_WC_Receipt_Display {
         
         if ($receipt_number) {
             if ($plain_text) {
-                echo "\n" . __('SCU INFORMATION', 'kra-etims-integration') . "\n";
-                echo __('Receipt Number:', 'kra-etims-integration') . ' ' . $receipt_number . "\n";
+                echo "\n" . __('SCU INFORMATION', 'kra-etims-connector') . "\n";
+                echo __('Receipt Number:', 'kra-etims-connector') . ' ' . $receipt_number . "\n";
                 
                 // Show customer TIN if available
                 $customer_tin = get_post_meta($order->get_id(), '_customer_tin', true);
                 if ($customer_tin) {
-                    echo __('Customer TIN:', 'kra-etims-integration') . ' ' . $customer_tin . "\n";
+                    echo __('Customer TIN:', 'kra-etims-connector') . ' ' . $customer_tin . "\n";
                 }
                 
                 // Get internal data and format it
                 $internal_data = get_post_meta($order->get_id(), '_internal_data', true);
                 if ($internal_data) {
-                    echo __('Internal Data:', 'kra-etims-integration') . ' ' . $this->format_internal_data($internal_data) . "\n";
+                    echo __('Internal Data:', 'kra-etims-connector') . ' ' . $this->format_internal_data($internal_data) . "\n";
                 }
                 
                 if ($receipt_signature) {
-                    echo __('Receipt Signature:', 'kra-etims-integration') . ' ' . $this->format_receipt_signature($receipt_signature) . "\n";
+                    echo __('Receipt Signature:', 'kra-etims-connector') . ' ' . $this->format_receipt_signature($receipt_signature) . "\n";
                 }
                 if ($receipt_date) {
-                    echo __('Receipt Date:', 'kra-etims-integration') . ' ' . $this->format_receipt_date($receipt_date) . "\n";
+                    echo __('Receipt Date:', 'kra-etims-connector') . ' ' . $this->format_receipt_date($receipt_date) . "\n";
                 }
                 if ($mrc_number) {
-                    echo __('CU Number:', 'kra-etims-integration') . ' ' . $mrc_number . "\n";
+                    echo __('CU Number:', 'kra-etims-connector') . ' ' . $mrc_number . "\n";
                 }
                 if ($sdc_id) {
-                    echo __('SCU ID:', 'kra-etims-integration') . ' ' . $sdc_id . "\n";
+                    echo __('SCU ID:', 'kra-etims-connector') . ' ' . $sdc_id . "\n";
                 }
                 echo "\n";
             } else {
                 ?>
-                <h2><?php _e('SCU INFORMATION', 'kra-etims-integration'); ?></h2>
+                <h2><?php _e('SCU INFORMATION', 'kra-etims-connector'); ?></h2>
                 <table cellspacing="0" cellpadding="6" style="width: 100%; border: 1px solid #eee;">
                     <tbody>
                         <tr>
-                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Receipt Number:', 'kra-etims-integration'); ?></th>
+                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Receipt Number:', 'kra-etims-connector'); ?></th>
                             <td style="text-align:left; border-bottom: 1px solid #eee;"><?php echo esc_html($receipt_number); ?></td>
                         </tr>
                         <?php 
@@ -212,7 +212,7 @@ class KRA_eTims_WC_Receipt_Display {
                         if ($customer_tin) : 
                         ?>
                         <tr>
-                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Customer TIN:', 'kra-etims-integration'); ?></th>
+                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Customer TIN:', 'kra-etims-connector'); ?></th>
                             <td style="text-align:left; border-bottom: 1px solid #eee;"><?php echo esc_html($customer_tin); ?></td>
                         </tr>
                         <?php endif; ?>
@@ -222,31 +222,31 @@ class KRA_eTims_WC_Receipt_Display {
                         if ($internal_data) : 
                         ?>
                         <tr>
-                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Internal Data:', 'kra-etims-integration'); ?></th>
+                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Internal Data:', 'kra-etims-connector'); ?></th>
                             <td style="text-align:left; border-bottom: 1px solid #eee;"><code><?php echo esc_html($this->format_internal_data($internal_data)); ?></code></td>
                         </tr>
                         <?php endif; ?>
                         <?php if ($receipt_signature) : ?>
                         <tr>
-                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Receipt Signature:', 'kra-etims-integration'); ?></th>
+                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Receipt Signature:', 'kra-etims-connector'); ?></th>
                             <td style="text-align:left; border-bottom: 1px solid #eee;"><code><?php echo esc_html($this->format_receipt_signature($receipt_signature)); ?></code></td>
                         </tr>
                         <?php endif; ?>
                         <?php if ($receipt_date) : ?>
                         <tr>
-                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Receipt Date:', 'kra-etims-integration'); ?></th>
+                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('Receipt Date:', 'kra-etims-connector'); ?></th>
                             <td style="text-align:left; border-bottom: 1px solid #eee;"><?php echo esc_html($this->format_receipt_date($receipt_date)); ?></td>
                         </tr>
                         <?php endif; ?>
                         <?php if ($mrc_number) : ?>
                         <tr>
-                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('CU Number:', 'kra-etims-integration'); ?></th>
+                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('CU Number:', 'kra-etims-connector'); ?></th>
                             <td style="text-align:left; border-bottom: 1px solid #eee;"><?php echo esc_html($mrc_number); ?></td>
                         </tr>
                         <?php endif; ?>
                         <?php if ($sdc_id) : ?>
                         <tr>
-                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('SCU ID:', 'kra-etims-integration'); ?></th>
+                            <th style="text-align:left; border-bottom: 1px solid #eee;"><?php _e('SCU ID:', 'kra-etims-connector'); ?></th>
                             <td style="text-align:left; border-bottom: 1px solid #eee;"><?php echo esc_html($sdc_id); ?></td>
                         </tr>
                         <?php endif; ?>
@@ -279,7 +279,7 @@ class KRA_eTims_WC_Receipt_Display {
         
         if ($receipt_number) {
             $items['receipt_info'] = array(
-                'name' => __('Receipt Number', 'kra-etims-integration'),
+                'name' => __('Receipt Number', 'kra-etims-connector'),
                 'value' => $receipt_number,
                 'type' => 'receipt'
             );
@@ -388,7 +388,7 @@ class KRA_eTims_WC_Receipt_Display {
         
         // Add injonge code to item name if available
         if (!empty($injonge_code)) {
-            $name .= ' <span class="injonge-code" style="font-size: 0.9em; color: #666; font-weight: normal;">(' . __('Code:', 'kra-etims-integration') . ' <code>' . esc_html($injonge_code) . '</code>)</span>';
+            $name .= ' <span class="injonge-code" style="font-size: 0.9em; color: #666; font-weight: normal;">(' . __('Code:', 'kra-etims-connector') . ' <code>' . esc_html($injonge_code) . '</code>)</span>';
         }
         
         return $name;
@@ -419,7 +419,7 @@ class KRA_eTims_WC_Receipt_Display {
         if (!empty($injonge_code)) {
             ?>
             <div class="order-item-injonge-code" style="margin-top: 5px; padding: 5px; background: #f0f6fc; border-left: 3px solid #0073aa;">
-                <strong><?php _e('Injonge Code:', 'kra-etims-integration'); ?></strong> 
+                <strong><?php _e('Injonge Code:', 'kra-etims-connector'); ?></strong> 
                 <code style="background: #fff; padding: 2px 6px; border-radius: 3px; font-weight: bold;"><?php echo esc_html($injonge_code); ?></code>
             </div>
             <?php
@@ -436,7 +436,7 @@ class KRA_eTims_WC_Receipt_Display {
      */
     public function format_injonge_code_meta_key($display_key, $meta, $item) {
         if ($meta->key === '_injonge_code') {
-            return __('Injonge Code', 'kra-etims-integration');
+            return __('Injonge Code', 'kra-etims-connector');
         }
         return $display_key;
     }

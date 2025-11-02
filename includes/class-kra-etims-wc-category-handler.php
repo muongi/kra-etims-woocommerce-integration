@@ -342,9 +342,9 @@ class KRA_eTims_WC_Category_Handler {
     public function add_category_unspec_field() {
         ?>
         <div class="form-field term-unspec-code-wrap">
-            <label for="kra_etims_unspec_code"><?php _e('KRA eTims Item Code', 'kra-etims-integration'); ?></label>
+            <label for="kra_etims_unspec_code"><?php _e('KRA eTims Item Code', 'kra-etims-connector'); ?></label>
             <select name="kra_etims_unspec_code" id="kra_etims_unspec_code">
-                <option value=""><?php _e('Select Item Code', 'kra-etims-integration'); ?></option>
+                <option value=""><?php _e('Select Item Code', 'kra-etims-connector'); ?></option>
                 <?php foreach ($this->item_codes as $category_type => $codes): ?>
                     <optgroup label="<?php echo esc_attr(ucfirst(str_replace('_', ' ', $category_type))); ?>">
                         <?php foreach ($codes as $code => $description): ?>
@@ -353,7 +353,7 @@ class KRA_eTims_WC_Category_Handler {
                     </optgroup>
                 <?php endforeach; ?>
             </select>
-            <p class="description"><?php _e('Select the appropriate item code for this category. Products in this category will inherit this item code.', 'kra-etims-integration'); ?></p>
+            <p class="description"><?php _e('Select the appropriate item code for this category. Products in this category will inherit this item code.', 'kra-etims-connector'); ?></p>
         </div>
         <?php
     }
@@ -370,11 +370,11 @@ class KRA_eTims_WC_Category_Handler {
         ?>
         <tr class="form-field term-unspec-code-wrap">
             <th scope="row">
-                <label for="kra_etims_unspec_code"><?php _e('KRA eTims Item Code', 'kra-etims-integration'); ?></label>
+                <label for="kra_etims_unspec_code"><?php _e('KRA eTims Item Code', 'kra-etims-connector'); ?></label>
             </th>
             <td>
                 <select name="kra_etims_unspec_code" id="kra_etims_unspec_code">
-                    <option value=""><?php _e('Select Item Code', 'kra-etims-integration'); ?></option>
+                    <option value=""><?php _e('Select Item Code', 'kra-etims-connector'); ?></option>
                     <?php foreach ($this->item_codes as $category_type => $codes): ?>
                         <optgroup label="<?php echo esc_attr(ucfirst(str_replace('_', ' ', $category_type))); ?>">
                             <?php foreach ($codes as $code => $description): ?>
@@ -385,17 +385,17 @@ class KRA_eTims_WC_Category_Handler {
                         </optgroup>
                     <?php endforeach; ?>
                 </select>
-                <p class="description"><?php _e('Select the appropriate item code for this category. Products in this category will inherit this item code.', 'kra-etims-integration'); ?></p>
+                <p class="description"><?php _e('Select the appropriate item code for this category. Products in this category will inherit this item code.', 'kra-etims-connector'); ?></p>
             </td>
         </tr>
         <?php if (!empty($server_id)): ?>
         <tr class="form-field term-server-id-wrap">
             <th scope="row">
-                <label><?php _e('Server ID (SID)', 'kra-etims-integration'); ?></label>
+                <label><?php _e('Server ID (SID)', 'kra-etims-connector'); ?></label>
             </th>
             <td>
                 <input type="text" value="<?php echo esc_attr($server_id); ?>" readonly style="background-color: #f0f0f0;" />
-                <p class="description"><?php _e('This is the server ID returned from the API. It cannot be edited.', 'kra-etims-integration'); ?></p>
+                <p class="description"><?php _e('This is the server ID returned from the API. It cannot be edited.', 'kra-etims-connector'); ?></p>
             </td>
         </tr>
         <?php endif; ?>
@@ -427,8 +427,8 @@ class KRA_eTims_WC_Category_Handler {
         foreach ($columns as $key => $value) {
             $new_columns[$key] = $value;
             if ($key === 'description') {
-                $new_columns['itemcode'] = __('Item Code', 'kra-etims-integration');
-                $new_columns['server_id'] = __('Server ID', 'kra-etims-integration');
+                $new_columns['itemcode'] = __('Item Code', 'kra-etims-connector');
+                $new_columns['server_id'] = __('Server ID', 'kra-etims-connector');
             }
         }
         

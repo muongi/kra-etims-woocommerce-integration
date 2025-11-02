@@ -347,14 +347,14 @@ class KRA_eTims_WC_Tax_Handler {
         
         ?>
         <p class="form-field">
-            <label for="kra_tax_type"><?php _e('KRA Tax Type', 'kra-etims-integration'); ?></label>
+            <label for="kra_tax_type"><?php _e('KRA Tax Type', 'kra-etims-connector'); ?></label>
             <select id="kra_tax_type" name="kra_tax_type" class="select short">
                 <option value="B" <?php selected($current_tax_type, 'B'); ?>>B - VAT 16%</option>
                 <option value="A" <?php selected($current_tax_type, 'A'); ?>>A - Exempt (0%)</option>
                 <option value="C" <?php selected($current_tax_type, 'C'); ?>>C - Export (0%)</option>
                 <option value="D" <?php selected($current_tax_type, 'D'); ?>>D - Non-VAT (0%)</option>
             </select>
-            <span class="description"><?php _e('Select the KRA tax type for this product. The WooCommerce tax class will be automatically synced.', 'kra-etims-integration'); ?></span>
+            <span class="description"><?php _e('Select the KRA tax type for this product. The WooCommerce tax class will be automatically synced.', 'kra-etims-connector'); ?></span>
         </p>
         <?php
     }
@@ -420,7 +420,7 @@ class KRA_eTims_WC_Tax_Handler {
         foreach ($columns as $key => $value) {
             $new_columns[$key] = $value;
             if ($key === 'price') {
-                $new_columns['kra_tax_type'] = __('KRA Tax', 'kra-etims-integration');
+                $new_columns['kra_tax_type'] = __('KRA Tax', 'kra-etims-connector');
             }
         }
         
