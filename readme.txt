@@ -1,5 +1,4 @@
 === KRA eTims Connector ===
-Contributors: shadrackmatata
 Tags: woocommerce, kra, etims, tax, kenya, electronic tax invoice management system, etims
 Requires at least: 5.6
 Tested up to: 6.4
