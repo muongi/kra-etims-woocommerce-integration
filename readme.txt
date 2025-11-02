@@ -1,4 +1,4 @@
-=== KRA eTims Integration ===
+=== KRA eTims Connector ===
 Contributors: shadrackmatata
 Tags: woocommerce, kra, etims, tax, kenya, electronic tax invoice management system, etims
 Requires at least: 5.6
@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: ISC
 License URI: https://opensource.org/licenses/ISC
 
-Integrates WooCommerce with Kenya Revenue Authority (KRA) Electronic Tax Invoice Management System (eTims) to generate eTims compliant receipts.
+Connects WooCommerce with Kenya Revenue Authority (KRA) Electronic Tax Invoice Management System (eTims) to generate eTims compliant receipts.
 
 == Description ==
 
