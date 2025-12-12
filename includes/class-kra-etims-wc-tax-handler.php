@@ -108,47 +108,35 @@ class KRA_eTims_WC_Tax_Handler {
 
     /**
      * Setup WooCommerce taxes for KRA compliance
+     * Note: We no longer force tax-inclusive settings - user can choose in WooCommerce settings
+     * The plugin will read the setting and convert to tax-inclusive when sending to API
      */
     public function setup_woocommerce_taxes() {
-        // Enable tax calculations (for API reporting only, not for display)
+        // Enable tax calculations (required for API reporting)
         update_option('woocommerce_calc_taxes', 'yes');
-        
-        // Set prices to include tax (tax-inclusive pricing)
-        update_option('woocommerce_prices_include_tax', 'yes');
-        
-        // Display prices including tax in shop
-        update_option('woocommerce_tax_display_shop', 'incl');
-        
-        // Display prices including tax in cart
-        update_option('woocommerce_tax_display_cart', 'incl');
         
         // Set tax based on customer billing address
         update_option('woocommerce_tax_based_on', 'billing');
         
         // DO NOT setup tax classes or rates
+        // DO NOT force tax-inclusive settings - let user choose in WooCommerce settings
         // Tax calculation will be done only for API reporting, not by WooCommerce
-        // This prevents double taxation on tax-inclusive prices
+        // The plugin will read WooCommerce's tax setting and convert to tax-inclusive for API
         
-        error_log('KRA eTims: WooCommerce taxes configured for KRA compliance (tax-inclusive only, no rates)');
+        error_log('KRA eTims: WooCommerce taxes configured for KRA compliance (reads user setting, converts to tax-inclusive for API)');
     }
 
     /**
      * Ensure tax settings are correct (called on cart load and page load)
+     * Note: We no longer force tax-inclusive settings - we read WooCommerce's setting
+     * and convert to tax-inclusive only when sending to API
      */
     public function ensure_tax_settings() {
-        // Force settings to be correct every time
-        if (get_option('woocommerce_prices_include_tax') !== 'yes') {
-            update_option('woocommerce_prices_include_tax', 'yes');
-        }
-        if (get_option('woocommerce_tax_display_cart') !== 'incl') {
-            update_option('woocommerce_tax_display_cart', 'incl');
-        }
-        if (get_option('woocommerce_tax_display_shop') !== 'incl') {
-            update_option('woocommerce_tax_display_shop', 'incl');
-        }
+        // Only ensure tax calculation is enabled
         if (get_option('woocommerce_calc_taxes') !== 'yes') {
             update_option('woocommerce_calc_taxes', 'yes');
         }
+        // Don't force tax-inclusive settings - let user choose in WooCommerce settings
     }
 
     /**
@@ -468,25 +456,27 @@ class KRA_eTims_WC_Tax_Handler {
         // Get tax rate for this tax type
         $tax_rate = $this->get_tax_rate_for_type($kra_tax_type);
         
-        // Get totals from WooCommerce - prices are tax-inclusive
-        $line_total = $item->get_total(); // Total including tax (tax-inclusive price)
+        // Get totals from WooCommerce
+        $line_total = $item->get_total(); // Total from WooCommerce
         $line_tax_woo = $item->get_total_tax(); // WooCommerce calculated tax
         
-        // Check if prices are tax-inclusive
+        // Check if prices are tax-inclusive in WooCommerce settings
         $prices_include_tax = get_option('woocommerce_prices_include_tax') === 'yes';
         
-        // For tax-inclusive pricing, manually calculate tax for proper API reporting
+        // IMPORTANT: Always convert to tax-inclusive for API, regardless of WooCommerce setting
+        // The API requires tax-inclusive prices, so we convert if needed
         if ($prices_include_tax && $line_total > 0) {
-            // Calculate tax amount from tax-inclusive price
+            // Prices already include tax - extract tax amount from total
             // Formula: Tax = Total * (TaxRate / (100 + TaxRate))
             // For 16% VAT: Tax = 569 * (16 / 116) = 78.48
             $line_tax = ($line_total * $tax_rate) / (100 + $tax_rate);
             $line_subtotal = $line_total - $line_tax; // Taxable amount (without tax)
+            // $line_total is already tax-inclusive - use as is
         } else {
-            // Prices exclude tax (standard WooCommerce calculation)
+            // Prices exclude tax - calculate tax and convert to tax-inclusive
             $line_subtotal = $item->get_subtotal(); // Subtotal without tax
             $line_tax = $line_tax_woo > 0 ? $line_tax_woo : ($line_subtotal * $tax_rate / 100);
-            $line_total = $line_subtotal + $line_tax; // Total with tax
+            $line_total = $line_subtotal + $line_tax; // Convert to tax-inclusive for API
         }
         
         // Calculate per-unit values
